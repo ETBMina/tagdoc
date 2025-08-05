@@ -1,6 +1,5 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:tagdoc/core/error/failure.dart';
-import 'package:tagdoc/core/usecase/base_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie_metadata.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movie_metadata_usecase.dart';
