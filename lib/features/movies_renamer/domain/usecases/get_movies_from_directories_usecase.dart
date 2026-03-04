@@ -5,11 +5,11 @@ import 'package:tagdoc/core/usecase/base_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/domain/repositories/base_movie_repository.dart';
 
-class GetMoviesFromDirectories
+class GetMoviesFromDirectoriesUsecase
     extends BaseUsecase<List<Movie>, MoviesFromDirectoriesParams> {
   final BaseMovieRepository repository;
 
-  GetMoviesFromDirectories({required this.repository});
+  GetMoviesFromDirectoriesUsecase({required this.repository});
 
   @override
   Future<Either<Failure, List<Movie>>> call(
@@ -20,10 +20,8 @@ class GetMoviesFromDirectories
 }
 
 class MoviesFromDirectoriesParams extends Equatable {
-  final String path;
-
-  const MoviesFromDirectoriesParams({required this.path});
+  const MoviesFromDirectoriesParams();
 
   @override
-  List<Object?> get props => [path];
+  List<Object?> get props => [];
 }
