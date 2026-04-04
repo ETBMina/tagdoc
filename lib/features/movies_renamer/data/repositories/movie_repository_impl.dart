@@ -4,18 +4,16 @@ import 'package:tagdoc/core/error/error_messages.dart';
 import 'package:tagdoc/core/error/failure.dart';
 import 'package:tagdoc/features/movies_renamer/data/models/movie_model.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
-import 'package:tagdoc/features/movies_renamer/domain/entities/movie_metadata.dart';
 import 'package:tagdoc/features/movies_renamer/domain/repositories/base_movie_repository.dart';
-import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movie_metadata_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movies_from_directories_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/rename_movie_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/data/datasources/local_file_data_source.dart';
 import 'package:tagdoc/features/movies_renamer/data/datasources/movie_metadata_data_source.dart';
-import 'package:tagdoc/features/movies_renamer/data/models/movie_metadata_model.dart';
 
 class MovieRepositoryImpl implements BaseMovieRepository {
   final LocalFileDataSource localFileDataSource;
   final MovieMetadataDataSource movieMetadataDataSource;
+  List<Movie> _currentMovies = [];
 
   MovieRepositoryImpl({
     required this.localFileDataSource,
@@ -39,20 +37,8 @@ class MovieRepositoryImpl implements BaseMovieRepository {
       MovieModel movieModel = MovieModel.fromJson(jsonDecode(rawJson), path);
       movies.add(movieModel);
     }
+    _currentMovies.addAll(movies);
     return Right(movies);
-  }
-
-  @override
-  Future<Either<Failure, MovieMetadata>> getMovieMetadata(
-    MovieMetadataParams params,
-  ) async {
-    String? movieMetadata = movieMetadataDataSource.getMovieMetadataFromFile(
-      params.movie.filePath,
-    );
-    if (movieMetadata == null) {
-      return Left(Failure(message: ErrorMessages.movieMetadataNotFound));
-    }
-    return Right(MovieMetadataModel.fromJson(jsonDecode(movieMetadata)));
   }
 
   @override
@@ -77,5 +63,17 @@ class MovieRepositoryImpl implements BaseMovieRepository {
     } catch (e) {
       return Left(Failure(message: 'Failed to rename movie: $e'));
     }
+  }
+
+  @override
+  List<Movie> getInitialMovies() {
+    return _currentMovies;
+  }
+
+  @override
+  void saveMovies(List<Movie> movies) {
+    // _currentMovies.clear();
+    // _currentMovies.addAll(movies);
+    _currentMovies = [...movies];
   }
 }
