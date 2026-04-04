@@ -37,7 +37,7 @@ class MovieRepositoryImpl implements BaseMovieRepository {
       MovieModel movieModel = MovieModel.fromJson(jsonDecode(rawJson), path);
       movies.add(movieModel);
     }
-    _currentMovies.addAll(movies);
+    _currentMovies = [..._currentMovies, ...movies];
     return Right(movies);
   }
 

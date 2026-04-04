@@ -1,26 +1,19 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
+import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_dropdown.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_text_field.dart';
 
 class MovieCardV2 extends StatefulWidget {
-  final String fileName;
-  final String title;
-  final String year;
-  final String resolution;
+  final Movie movie;
   final String quality;
   final String source;
-  final String? poster;
 
   const MovieCardV2({
     super.key,
-    required this.fileName,
-    required this.title,
-    required this.year,
-    required this.resolution,
-    required this.quality,
-    required this.source,
-    this.poster,
+    required this.movie,
+    this.quality = 'Blu-ray',
+    this.source = 'None',
   });
 
   @override
@@ -38,11 +31,27 @@ class _MovieCardV2State extends State<MovieCardV2> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.title);
-    _yearController = TextEditingController(text: widget.year);
-    _resolution = widget.resolution;
+    final metadata = widget.movie.metadata;
+    _titleController = TextEditingController(
+      text: metadata?.title ?? widget.movie.fileName,
+    );
+
+    String year = '';
+    if (metadata != null && metadata.releaseDate.isNotEmpty) {
+      year = metadata.releaseDate.split('-').first;
+    }
+    _yearController = TextEditingController(text: year);
+
+    _resolution = _getResolution(widget.movie.width, widget.movie.height);
     _quality = widget.quality;
     _source = widget.source;
+  }
+
+  String _getResolution(int width, int height) {
+    if (width >= 3840 || height >= 2160) return '2160p (4K)';
+    if (width >= 1920 || height >= 1080) return '1080p';
+    if (width >= 1280 || height >= 720) return '720p';
+    return '${height}p';
   }
 
   @override
@@ -57,10 +66,14 @@ class _MovieCardV2State extends State<MovieCardV2> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
-        color: _isSelected ? TagDocColors.surfaceContainer : TagDocColors.surfaceContainerLow,
+        color: _isSelected
+            ? TagDocColors.surfaceContainer
+            : TagDocColors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _isSelected ? TagDocColors.primary.withValues(alpha: 0.3) : TagDocColors.outlineVariant.withValues(alpha: 0.1),
+          color: _isSelected
+              ? TagDocColors.primary.withValues(alpha: 0.3)
+              : TagDocColors.outlineVariant.withValues(alpha: 0.1),
         ),
       ),
       child: Stack(
@@ -113,11 +126,14 @@ class _MovieCardV2State extends State<MovieCardV2> {
                     ],
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: widget.poster != null
-                      ? Image.network(widget.poster!, fit: BoxFit.cover)
-                      : const Center(
-                          child: Icon(FluentIcons.my_movies_t_v, size: 24, color: TagDocColors.onSurfaceVariant),
-                        ),
+                  // Poster Placeholder (Actual posters would come from metadata or local cache)
+                  child: const Center(
+                    child: Icon(
+                      FluentIcons.my_movies_t_v,
+                      size: 24,
+                      color: TagDocColors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 // Meta fields
@@ -136,9 +152,14 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                 Row(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: TagDocColors.primary.withValues(alpha: 0.1),
+                                        color: TagDocColors.primary.withValues(
+                                          alpha: 0.1,
+                                        ),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: const Text(
@@ -149,7 +170,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        widget.fileName,
+                                        widget.movie.fileName,
                                         style: TagDocTextStyles.codeFilename,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -160,18 +181,24 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                 TextBox(
                                   controller: _titleController,
                                   style: TagDocTextStyles.cardTitle,
-                                  decoration: WidgetStateProperty.all(const BoxDecoration(
-                                    border: Border(), // No border
-                                    color: Colors.transparent,
-                                  )),
+                                  decoration: WidgetStateProperty.all(
+                                    const BoxDecoration(
+                                      border: Border(), // No border
+                                      color: Colors.transparent,
+                                    ),
+                                  ),
                                   padding: const EdgeInsets.all(0),
-                                  highlightColor: TagDocColors.surfaceContainerHigh,
+                                  highlightColor:
+                                      TagDocColors.surfaceContainerHigh,
                                 ),
                               ],
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(FluentIcons.delete, color: TagDocColors.onSurfaceVariant),
+                            icon: const Icon(
+                              FluentIcons.delete,
+                              color: TagDocColors.onSurfaceVariant,
+                            ),
                             onPressed: () {
                               // Handle delete (would communicate back via callback or BLoC)
                             },
@@ -194,7 +221,12 @@ class _MovieCardV2State extends State<MovieCardV2> {
                             child: V2Dropdown(
                               label: 'Resolution',
                               value: _resolution,
-                              items: const ['2160p (4K)', '1080p', '720p', 'SD'],
+                              items: const [
+                                '2160p (4K)',
+                                '1080p',
+                                '720p',
+                                'SD',
+                              ],
                               onChanged: (v) {
                                 if (v != null) setState(() => _resolution = v);
                               },
@@ -206,7 +238,12 @@ class _MovieCardV2State extends State<MovieCardV2> {
                             child: V2Dropdown(
                               label: 'Quality',
                               value: _quality,
-                              items: const ['Blu-ray', 'WEB-DL', 'Remux', 'HDTV'],
+                              items: const [
+                                'Blu-ray',
+                                'WEB-DL',
+                                'Remux',
+                                'HDTV',
+                              ],
                               onChanged: (v) {
                                 if (v != null) setState(() => _quality = v);
                               },
@@ -218,7 +255,14 @@ class _MovieCardV2State extends State<MovieCardV2> {
                             child: V2Dropdown(
                               label: 'Source',
                               value: _source,
-                              items: const ['Netflix', 'Amazon Prime', 'Disney+', 'Hulu', 'Apple TV+', 'None'],
+                              items: const [
+                                'Netflix',
+                                'Amazon Prime',
+                                'Disney+',
+                                'Hulu',
+                                'Apple TV+',
+                                'None',
+                              ],
                               onChanged: (v) {
                                 if (v != null) setState(() => _source = v);
                               },

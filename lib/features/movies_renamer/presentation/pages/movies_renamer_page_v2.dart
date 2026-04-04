@@ -125,30 +125,8 @@ class MoviesRenamerPageV2 extends StatelessWidget {
                                   return ListView.builder(
                                     itemCount: state.movies.length,
                                     itemBuilder: (context, index) {
-                                      final movie = state.movies[index];
-                                      final metadata = movie.metadata;
-
-                                      // Extract year from releaseDate (assuming YYYY-MM-DD or YYYY)
-                                      String year = '';
-                                      if (metadata != null &&
-                                          metadata.releaseDate.isNotEmpty) {
-                                        year = metadata.releaseDate
-                                            .split('-')
-                                            .first;
-                                      }
-
                                       return MovieCardV2(
-                                        fileName: movie.fileName,
-                                        title:
-                                            metadata?.title ?? movie.fileName,
-                                        year: year,
-                                        resolution: _getResolution(
-                                          movie.width,
-                                          movie.height,
-                                        ),
-                                        quality:
-                                            'Blu-ray', // Placeholder for now
-                                        source: 'None', // Placeholder for now
+                                        movie: state.movies[index],
                                       );
                                     },
                                   );
@@ -198,12 +176,5 @@ class MoviesRenamerPageV2 extends StatelessWidget {
         },
       ),
     );
-  }
-
-  String _getResolution(int width, int height) {
-    if (width >= 3840 || height >= 2160) return '2160p (4K)';
-    if (width >= 1920 || height >= 1080) return '1080p';
-    if (width >= 1280 || height >= 720) return '720p';
-    return '${height}p';
   }
 }
