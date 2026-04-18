@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
+import 'package:tagdoc/features/movies_renamer/domain/usecases/clear_all_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_initial_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movies_from_directories_usecase.dart';
+import 'package:tagdoc/features/movies_renamer/domain/usecases/load_movies_from_paths.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/rename_movie_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/save_movies_usecase.dart';
 
@@ -14,13 +16,19 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
   final RenameMovieUsecase _renameMovie;
   final GetInitialMoviesUsecase _getInitialMovies;
   final SaveMoviesUsecase _saveMovies;
+  final ClearAllMoviesUsecase _clearAllMovies;
+  final LoadMoviesFromPathsUsecase _loadMoviesFromPaths;
 
   MoviesRenamerBloc({
     required GetMoviesFromDirectoriesUsecase getMovies,
     required RenameMovieUsecase renameMovie,
     required GetInitialMoviesUsecase getInitialMovies,
     required SaveMoviesUsecase saveMovies,
-  }) : _saveMovies = saveMovies,
+    required ClearAllMoviesUsecase clearAllMovies,
+    required LoadMoviesFromPathsUsecase loadMoviesFromPaths,
+  }) : _clearAllMovies = clearAllMovies,
+       _loadMoviesFromPaths = loadMoviesFromPaths,
+       _saveMovies = saveMovies,
        _getInitialMovies = getInitialMovies,
        _getMovies = getMovies,
        _renameMovie = renameMovie,
@@ -42,6 +50,21 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     on<SelectMoviesEvent>((event, emit) async {
       emit(MoviesRenamerLoading(movies: state.movies));
       final result = await _getMovies(const MoviesFromDirectoriesParams());
+      result.match(
+        (failure) => emit(
+          MoviesRenamerError(message: failure.message, movies: state.movies),
+        ),
+        (newSelectedMovies) => emit(
+          MoviesRenamerLoaded(movies: [...state.movies, ...newSelectedMovies]),
+        ),
+      );
+    });
+
+    on<DragAndDropMoviesEvent>((event, emit) async {
+      emit(MoviesRenamerLoading(movies: state.movies));
+      final result = await _loadMoviesFromPaths(
+        LoadMoviesFromPathsParams(paths: event.filePaths),
+      );
       result.match(
         (failure) => emit(
           MoviesRenamerError(message: failure.message, movies: state.movies),
@@ -93,6 +116,7 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
 
     on<ClearAllMoviesEvent>((event, emit) {
       emit(MoviesRenamerLoading(movies: state.movies));
+      _clearAllMovies(ClearAllMoviesParams());
       emit(MoviesRenamerLoaded(movies: []));
     });
   }

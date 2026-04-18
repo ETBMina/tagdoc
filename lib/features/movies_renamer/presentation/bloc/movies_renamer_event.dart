@@ -30,3 +30,11 @@ class UpdateMovieDataEvent extends MoviesRenamerEvent {
 class ClearAllMoviesEvent extends MoviesRenamerEvent {
   const ClearAllMoviesEvent();
 }
+
+class DragAndDropMoviesEvent extends MoviesRenamerEvent {
+  final List<String> filePaths;
+  const DragAndDropMoviesEvent({required this.filePaths});
+
+  @override
+  List<Object?> get props => [filePaths];
+}

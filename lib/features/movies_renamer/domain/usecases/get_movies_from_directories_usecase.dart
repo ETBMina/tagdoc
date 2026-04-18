@@ -15,7 +15,7 @@ class GetMoviesFromDirectoriesUsecase
   Future<Either<Failure, List<Movie>>> call(
     MoviesFromDirectoriesParams params,
   ) async {
-    return await repository.getMoviesFromDirectory(params);
+    return await repository.getMoviesFromDirectory();
   }
 }
 

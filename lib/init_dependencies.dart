@@ -3,8 +3,10 @@ import 'package:tagdoc/features/movies_renamer/data/datasources/local_file_data_
 import 'package:tagdoc/features/movies_renamer/data/datasources/movie_metadata_data_source.dart';
 import 'package:tagdoc/features/movies_renamer/data/repositories/movie_repository_impl.dart';
 import 'package:tagdoc/features/movies_renamer/domain/repositories/base_movie_repository.dart';
+import 'package:tagdoc/features/movies_renamer/domain/usecases/clear_all_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_initial_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movies_from_directories_usecase.dart';
+import 'package:tagdoc/features/movies_renamer/domain/usecases/load_movies_from_paths.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/rename_movie_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/save_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/bloc/movies_renamer_bloc.dart';
@@ -42,6 +44,14 @@ void _initMoviesRenamer() {
     () => SaveMoviesUsecase(repository: serviceLocator()),
   );
 
+  serviceLocator.registerLazySingleton(
+    () => ClearAllMoviesUsecase(repository: serviceLocator()),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => LoadMoviesFromPathsUsecase(repository: serviceLocator()),
+  );
+
   // 4. BLoC
   serviceLocator.registerFactory(
     () => MoviesRenamerBloc(
@@ -49,6 +59,8 @@ void _initMoviesRenamer() {
       renameMovie: serviceLocator(),
       getInitialMovies: serviceLocator(),
       saveMovies: serviceLocator(),
+      clearAllMovies: serviceLocator(),
+      loadMoviesFromPaths: serviceLocator(),
     ),
   );
 }

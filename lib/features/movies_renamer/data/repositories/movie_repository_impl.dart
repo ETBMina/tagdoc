@@ -6,7 +6,6 @@ import 'package:tagdoc/core/error/failure.dart';
 import 'package:tagdoc/features/movies_renamer/data/models/movie_model.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/domain/repositories/base_movie_repository.dart';
-import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movies_from_directories_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/rename_movie_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/data/datasources/local_file_data_source.dart';
 import 'package:tagdoc/features/movies_renamer/data/datasources/movie_metadata_data_source.dart';
@@ -22,13 +21,20 @@ class MovieRepositoryImpl implements BaseMovieRepository {
   });
 
   @override
-  Future<Either<Failure, List<Movie>>> getMoviesFromDirectory(
-    MoviesFromDirectoriesParams params,
-  ) async {
+  Future<Either<Failure, List<Movie>>> getMoviesFromDirectory() async {
     List<String> paths = await localFileDataSource.selectFiles();
+
+    return loadMoviesFromPaths(paths);
+  }
+
+  @override
+  Future<Either<Failure, List<Movie>>> loadMoviesFromPaths(
+    List<String> paths,
+  ) async {
     if (paths.isEmpty) {
       return Left(Failure(message: ErrorMessages.noFilesSelected));
     }
+
     List<MovieModel> movies = [];
     for (var path in paths) {
       final rawJson = movieMetadataDataSource.getMovieMetadataFromFile(path);
