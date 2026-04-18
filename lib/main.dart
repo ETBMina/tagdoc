@@ -6,11 +6,16 @@ import 'package:tagdoc/init_dependencies.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tagdoc/l10n/app_localizations.dart';
+import 'package:tagdoc/core/config/settings_manager.dart';
 
 void main() async {
   // make sure the Flutter engine is ready for any async setup
   WidgetsFlutterBinding.ensureInitialized();
   await initDependencies();
+  
+  // Load dynamic logic for tags (Qualities, Sources)
+  SettingsManager.loadSettingsFromFile('settings.json');
+  
   runApp(const MyApp());
 }
 

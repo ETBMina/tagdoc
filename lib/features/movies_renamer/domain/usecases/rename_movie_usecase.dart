@@ -18,9 +18,8 @@ class RenameMovieUsecase extends BaseUsecase<Movie, RenameMovieParams> {
 
 class RenameMovieParams extends Equatable {
   final Movie movie;
-  final String newFileName;
-  const RenameMovieParams({required this.movie, required this.newFileName});
+  const RenameMovieParams({required this.movie});
 
   @override
-  List<Object?> get props => [movie, newFileName];
+  List<Object?> get props => [movie];
 }

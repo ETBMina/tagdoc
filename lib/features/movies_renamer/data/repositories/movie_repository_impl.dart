@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:fpdart/fpdart.dart';
+import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/core/error/error_messages.dart';
 import 'package:tagdoc/core/error/failure.dart';
 import 'package:tagdoc/features/movies_renamer/data/models/movie_model.dart';
@@ -44,18 +45,23 @@ class MovieRepositoryImpl implements BaseMovieRepository {
   @override
   Future<Either<Failure, Movie>> renameMovie(RenameMovieParams params) async {
     try {
+      final newFileName = params.movie.getFormattedName(
+        SettingsManager.renameFormat,
+      );
       final newPath = await localFileDataSource.renameFile(
         params.movie.filePath,
-        params.newFileName,
+        newFileName,
       );
 
       // Create a new Movie object with the updated path and name
       final updatedMovie = MovieModel(
         filePath: newPath,
-        fileName: params.newFileName,
+        fileName: newFileName,
         fileSize: params.movie.fileSize,
         width: params.movie.width,
         height: params.movie.height,
+        quality: params.movie.quality,
+        source: params.movie.source,
         metadata: params.movie.metadata,
       );
 

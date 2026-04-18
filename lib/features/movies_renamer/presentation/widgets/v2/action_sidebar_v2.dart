@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_buttons.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_dropdown.dart';
@@ -127,21 +128,21 @@ class ActionSidebarV2 extends StatelessWidget {
                 V2Dropdown(
                   label: 'Resolution',
                   value: 'Select Resolution',
-                  items: const ['Select Resolution', '2160p (4K)', '1080p', '720p', 'SD'],
+                  items: ['Select Resolution', ...SettingsManager.resolutions],
                   onChanged: (v) {},
                 ),
                 const SizedBox(height: 12),
                 V2Dropdown(
                   label: 'Quality',
                   value: 'Select Quality',
-                  items: const ['Select Quality', 'Blu-ray', 'WEB-DL', 'Remux', 'HDTV'],
+                  items: ['Select Quality', ...SettingsManager.qualities.map((q) => q.displayName)],
                   onChanged: (v) {},
                 ),
                 const SizedBox(height: 12),
                 V2Dropdown(
                   label: 'Source',
                   value: 'Select Source',
-                  items: const ['Select Source', 'Internal HDD', 'NAS Server', 'Cloud Storage'],
+                  items: ['Select Source', ...SettingsManager.sources.map((s) => s.displayName)],
                   onChanged: (v) {},
                 ),
                 const SizedBox(height: 24),

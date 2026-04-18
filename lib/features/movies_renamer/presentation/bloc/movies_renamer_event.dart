@@ -12,14 +12,20 @@ class SelectMoviesEvent extends MoviesRenamerEvent {
 }
 
 class RenameAllMoviesEvent extends MoviesRenamerEvent {
-  final Map<Movie, String> newNamesMap;
-
-  const RenameAllMoviesEvent({required this.newNamesMap});
+  const RenameAllMoviesEvent();
 
   @override
-  List<Object?> get props => [newNamesMap];
+  List<Object?> get props => [];
 }
 
 class GetInitialMoviesEvent extends MoviesRenamerEvent {
   const GetInitialMoviesEvent();
+}
+
+class UpdateMovieDataEvent extends MoviesRenamerEvent {
+  final Movie updatedMovie;
+  const UpdateMovieDataEvent({required this.updatedMovie});
+
+  @override
+  List<Object?> get props => [updatedMovie];
 }

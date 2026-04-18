@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_dropdown.dart';
@@ -6,14 +7,12 @@ import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_text_f
 
 class MovieCardV2 extends StatefulWidget {
   final Movie movie;
-  final String quality;
-  final String source;
+  final Function(Movie updatedMovie) onUpdateMovie;
 
   const MovieCardV2({
     super.key,
     required this.movie,
-    this.quality = 'Blu-ray',
-    this.source = 'None',
+    required this.onUpdateMovie,
   });
 
   @override
@@ -42,16 +41,9 @@ class _MovieCardV2State extends State<MovieCardV2> {
     }
     _yearController = TextEditingController(text: year);
 
-    _resolution = _getResolution(widget.movie.width, widget.movie.height);
-    _quality = widget.quality;
-    _source = widget.source;
-  }
-
-  String _getResolution(int width, int height) {
-    if (width >= 3840 || height >= 2160) return '2160p (4K)';
-    if (width >= 1920 || height >= 1080) return '1080p';
-    if (width >= 1280 || height >= 720) return '720p';
-    return '${height}p';
+    _resolution = widget.movie.getResolutionString();
+    _quality = widget.movie.quality;
+    _source = widget.movie.source ?? 'None';
   }
 
   @override
@@ -163,7 +155,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: const Text(
-                                        'ORIGINAL',
+                                        'FILENAME',
                                         style: TagDocTextStyles.pillLabel,
                                       ),
                                     ),
@@ -178,18 +170,45 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                   ],
                                 ),
                                 const SizedBox(height: 4),
-                                TextBox(
-                                  controller: _titleController,
-                                  style: TagDocTextStyles.cardTitle,
-                                  decoration: WidgetStateProperty.all(
-                                    const BoxDecoration(
-                                      border: Border(), // No border
-                                      color: Colors.transparent,
+                                Focus(
+                                  onFocusChange: (hasFocus) {
+                                    if (!hasFocus) {
+                                      final v = _titleController.text;
+                                      final updatedMetadata = widget
+                                          .movie
+                                          .metadata
+                                          ?.copyWith(title: v);
+                                      widget.onUpdateMovie(
+                                        widget.movie.copyWith(
+                                          metadata: updatedMetadata,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: TextBox(
+                                    controller: _titleController,
+                                    onSubmitted: (v) {
+                                      final updatedMetadata = widget
+                                          .movie
+                                          .metadata
+                                          ?.copyWith(title: v);
+                                      widget.onUpdateMovie(
+                                        widget.movie.copyWith(
+                                          metadata: updatedMetadata,
+                                        ),
+                                      );
+                                    },
+                                    style: TagDocTextStyles.cardTitle,
+                                    decoration: WidgetStateProperty.all(
+                                      const BoxDecoration(
+                                        border: Border(), // No border
+                                        color: Colors.transparent,
+                                      ),
                                     ),
+                                    padding: const EdgeInsets.all(0),
+                                    highlightColor:
+                                        TagDocColors.surfaceContainerHigh,
                                   ),
-                                  padding: const EdgeInsets.all(0),
-                                  highlightColor:
-                                      TagDocColors.surfaceContainerHigh,
                                 ),
                               ],
                             ),
@@ -210,9 +229,19 @@ class _MovieCardV2State extends State<MovieCardV2> {
                         children: [
                           Expanded(
                             flex: 1,
+                            // Year Textfield
                             child: V2TextField(
                               label: 'Release',
                               controller: _yearController,
+                              onSubmitted: (v) {
+                                final updatedMetadata = widget.movie.metadata
+                                    ?.copyWith(releaseDate: v);
+                                widget.onUpdateMovie(
+                                  widget.movie.copyWith(
+                                    metadata: updatedMetadata,
+                                  ),
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -221,14 +250,20 @@ class _MovieCardV2State extends State<MovieCardV2> {
                             child: V2Dropdown(
                               label: 'Resolution',
                               value: _resolution,
-                              items: const [
-                                '2160p (4K)',
-                                '1080p',
-                                '720p',
-                                'SD',
-                              ],
+                              items: SettingsManager.resolutions,
                               onChanged: (v) {
-                                if (v != null) setState(() => _resolution = v);
+                                if (v != null) {
+                                  setState(() {
+                                    _resolution = v;
+                                    widget.onUpdateMovie(
+                                      widget.movie.copyWith(
+                                        height: int.parse(
+                                          v.substring(0, v.length - 1),
+                                        ),
+                                      ),
+                                    );
+                                  });
+                                }
                               },
                             ),
                           ),
@@ -238,14 +273,20 @@ class _MovieCardV2State extends State<MovieCardV2> {
                             child: V2Dropdown(
                               label: 'Quality',
                               value: _quality,
-                              items: const [
-                                'Blu-ray',
-                                'WEB-DL',
-                                'Remux',
-                                'HDTV',
-                              ],
+                              items: List<String>.from(
+                                SettingsManager.qualities.map(
+                                  (q) => q.displayName,
+                                ),
+                              ),
                               onChanged: (v) {
-                                if (v != null) setState(() => _quality = v);
+                                if (v != null) {
+                                  setState(() {
+                                    _quality = v;
+                                    widget.onUpdateMovie(
+                                      widget.movie.copyWith(quality: v),
+                                    );
+                                  });
+                                }
                               },
                             ),
                           ),
@@ -255,16 +296,20 @@ class _MovieCardV2State extends State<MovieCardV2> {
                             child: V2Dropdown(
                               label: 'Source',
                               value: _source,
-                              items: const [
-                                'Netflix',
-                                'Amazon Prime',
-                                'Disney+',
-                                'Hulu',
-                                'Apple TV+',
-                                'None',
-                              ],
+                              items: List<String>.from(
+                                SettingsManager.sources.map(
+                                  (s) => s.displayName,
+                                ),
+                              ),
                               onChanged: (v) {
-                                if (v != null) setState(() => _source = v);
+                                if (v != null) {
+                                  setState(() {
+                                    _source = v;
+                                    widget.onUpdateMovie(
+                                      widget.movie.copyWith(source: v),
+                                    );
+                                  });
+                                }
                               },
                             ),
                           ),

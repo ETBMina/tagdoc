@@ -1,7 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
+import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/card_dropdown_wdgt.dart';
-
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/card_text_box_wdgt.dart';
 
 class MovieCardWdgt extends StatefulWidget {
@@ -33,22 +33,9 @@ class _MovieCardWdgtState extends State<MovieCardWdgt> {
   late String _selectedQuality;
   late String _selectedSource;
 
-  final List<String> _resolutions = ['2160p', '1080p', '720p', '480p'];
-  final List<String> _qualities = [
-    'WEB-DL',
-    'BluRay',
-    'DVDRip',
-    'HDDRip',
-    'HC',
-  ];
-  final List<String> _sources = [
-    'Netflix',
-    'Amazon',
-    'Disney+',
-    'Hulu',
-    'iTunes',
-    'Google Play',
-  ];
+  late final List<String> _resolutions = List.from(SettingsManager.resolutions);
+  late final List<String> _qualities = SettingsManager.qualities.map((q) => q.displayName).toList();
+  late final List<String> _sources = SettingsManager.sources.map((s) => s.displayName).toList();
 
   late final TextEditingController _titleController;
   late final TextEditingController _yearController;

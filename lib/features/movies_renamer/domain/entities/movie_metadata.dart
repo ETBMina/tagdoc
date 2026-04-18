@@ -35,4 +35,28 @@ class MovieMetadata extends Equatable {
     writers,
     comment,
   ];
+
+  MovieMetadata copyWith({
+    String? title,
+    String? releaseDate,
+    List<String>? genres,
+    List<String>? actors,
+    List<String>? directors,
+    List<String>? writers,
+    String? overview,
+    String? tagline,
+    String? comment,
+  }) {
+    return MovieMetadata(
+      title: title ?? this.title,
+      releaseDate: releaseDate ?? this.releaseDate,
+      genres: genres ?? this.genres,
+      actors: actors ?? this.actors,
+      directors: directors ?? this.directors,
+      writers: writers ?? this.writers,
+      overview: overview ?? this.overview,
+      tagline: tagline ?? this.tagline,
+      comment: comment ?? this.comment,
+    );
+  }
 }

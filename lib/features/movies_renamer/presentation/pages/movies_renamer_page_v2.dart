@@ -127,6 +127,13 @@ class MoviesRenamerPageV2 extends StatelessWidget {
                                     itemBuilder: (context, index) {
                                       return MovieCardV2(
                                         movie: state.movies[index],
+                                        onUpdateMovie: (updatedMovie) {
+                                          bloc.add(
+                                            UpdateMovieDataEvent(
+                                              updatedMovie: updatedMovie,
+                                            ),
+                                          );
+                                        },
                                       );
                                     },
                                   );
@@ -159,7 +166,9 @@ class MoviesRenamerPageV2 extends StatelessWidget {
                     ),
                     child: SingleChildScrollView(
                       child: ActionSidebarV2(
-                        onRenameAll: () {},
+                        onRenameAll: () {
+                          bloc.add(const RenameAllMoviesEvent());
+                        },
                         onExport: () {},
                         onAddMovies: () {
                           bloc.add(const SelectMoviesEvent());

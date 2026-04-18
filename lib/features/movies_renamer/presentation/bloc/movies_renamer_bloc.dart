@@ -58,10 +58,8 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
       List<Movie> updatedMovies = [];
       String? errorMessage;
 
-      for (var entry in event.newNamesMap.entries) {
-        final result = await _renameMovie(
-          RenameMovieParams(movie: entry.key, newFileName: entry.value),
-        );
+      for (var movie in state.movies) {
+        final result = await _renameMovie(RenameMovieParams(movie: movie));
         result.match(
           (failure) {
             errorMessage = failure.message;
@@ -78,6 +76,18 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
       } else {
         emit(MoviesRenamerSuccess(movies: state.movies));
         emit(MoviesRenamerLoaded(movies: updatedMovies));
+      }
+    });
+
+    on<UpdateMovieDataEvent>((event, emit) {
+      if (state is MoviesRenamerLoaded) {
+        final updatedMoviesList = state.movies.map((movie) {
+          return movie.filePath == event.updatedMovie.filePath
+              ? event.updatedMovie
+              : movie;
+        }).toList();
+
+        emit(MoviesRenamerLoaded(movies: updatedMoviesList));
       }
     });
   }
