@@ -15,4 +15,6 @@ abstract class BaseMovieRepository {
   List<Movie> getInitialMovies();
 
   void saveMovies(List<Movie> movies);
+
+  void clearAllMovies();
 }

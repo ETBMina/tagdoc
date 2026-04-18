@@ -82,4 +82,9 @@ class MovieRepositoryImpl implements BaseMovieRepository {
     // _currentMovies.addAll(movies);
     _currentMovies = [...movies];
   }
+
+  @override
+  void clearAllMovies() {
+    _currentMovies.clear();
+  }
 }

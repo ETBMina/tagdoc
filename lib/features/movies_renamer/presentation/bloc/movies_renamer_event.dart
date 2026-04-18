@@ -13,9 +13,6 @@ class SelectMoviesEvent extends MoviesRenamerEvent {
 
 class RenameAllMoviesEvent extends MoviesRenamerEvent {
   const RenameAllMoviesEvent();
-
-  @override
-  List<Object?> get props => [];
 }
 
 class GetInitialMoviesEvent extends MoviesRenamerEvent {
@@ -28,4 +25,8 @@ class UpdateMovieDataEvent extends MoviesRenamerEvent {
 
   @override
   List<Object?> get props => [updatedMovie];
+}
+
+class ClearAllMoviesEvent extends MoviesRenamerEvent {
+  const ClearAllMoviesEvent();
 }

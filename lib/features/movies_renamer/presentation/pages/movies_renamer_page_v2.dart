@@ -173,7 +173,9 @@ class MoviesRenamerPageV2 extends StatelessWidget {
                         onAddMovies: () {
                           bloc.add(const SelectMoviesEvent());
                         },
-                        onClearAll: () {},
+                        onClearAll: () {
+                          bloc.add(const ClearAllMoviesEvent());
+                        },
                         onApplyBatchChanges: () {},
                       ),
                     ),

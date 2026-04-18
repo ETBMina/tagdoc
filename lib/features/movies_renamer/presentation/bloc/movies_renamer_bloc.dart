@@ -90,6 +90,11 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
         emit(MoviesRenamerLoaded(movies: updatedMoviesList));
       }
     });
+
+    on<ClearAllMoviesEvent>((event, emit) {
+      emit(MoviesRenamerLoading(movies: state.movies));
+      emit(MoviesRenamerLoaded(movies: []));
+    });
   }
 
   @override
