@@ -4,6 +4,7 @@ import 'package:tagdoc/features/movies_renamer/data/datasources/movie_metadata_d
 import 'package:tagdoc/features/movies_renamer/data/repositories/movie_repository_impl.dart';
 import 'package:tagdoc/features/movies_renamer/domain/repositories/base_movie_repository.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/clear_all_movies_usecase.dart';
+import 'package:tagdoc/features/movies_renamer/domain/usecases/export_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_initial_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movies_from_directories_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/load_movies_from_paths.dart';
@@ -52,6 +53,10 @@ void _initMoviesRenamer() {
     () => LoadMoviesFromPathsUsecase(repository: serviceLocator()),
   );
 
+  serviceLocator.registerLazySingleton(
+    () => ExportMoviesUsecase(repository: serviceLocator()),
+  );
+
   // 4. BLoC
   serviceLocator.registerFactory(
     () => MoviesRenamerBloc(
@@ -61,6 +66,7 @@ void _initMoviesRenamer() {
       saveMovies: serviceLocator(),
       clearAllMovies: serviceLocator(),
       loadMoviesFromPaths: serviceLocator(),
+      exportMovies: serviceLocator(),
     ),
   );
 }

@@ -15,4 +15,6 @@ abstract class BaseMovieRepository {
   void saveMovies(List<Movie> movies);
 
   void clearAllMovies();
+
+  Future<Either<Failure, void>> exportMoviesToCsv();
 }

@@ -110,7 +110,9 @@ class MoviesRenamerPageV2 extends StatelessWidget {
                         onRenameAll: () {
                           bloc.add(const RenameAllMoviesEvent());
                         },
-                        onExport: () {},
+                        onExport: () {
+                          bloc.add(const ExportMoviesEvent());
+                        },
                         onAddMovies: () {
                           bloc.add(const SelectMoviesEvent());
                         },

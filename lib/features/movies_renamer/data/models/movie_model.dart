@@ -12,6 +12,7 @@ class MovieModel extends Movie {
     required super.height,
     required super.quality,
     super.source,
+    super.duration,
     super.metadata,
   });
 
@@ -26,6 +27,7 @@ class MovieModel extends Movie {
         height: int.parse(json['resolution']?['height'] ?? '0'),
         quality: SettingsManager.predictQuality(fileName),
         source: SettingsManager.predictSource(fileName),
+        duration: json['duration'] as String?,
         metadata: MovieMetadataModel.fromJson(json),
       );
     } catch (e) {

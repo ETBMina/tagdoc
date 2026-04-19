@@ -10,6 +10,7 @@ class Movie extends Equatable {
   final int height;
   final String quality;
   final String? source;
+  final String? duration;
   final MovieMetadata? metadata;
 
   const Movie({
@@ -20,8 +21,20 @@ class Movie extends Equatable {
     required this.height,
     required this.quality,
     this.source,
+    this.duration,
     this.metadata,
   });
+
+  List<dynamic> toCsvRow() {
+    return [
+      metadata?.title ?? fileName,
+      quality,
+      getResolutionString(),
+      fileSize,
+      source ?? '',
+      duration ?? '',
+    ];
+  }
 
   String getFormattedName(String format) {
     if (metadata == null) return fileName;
@@ -72,6 +85,7 @@ class Movie extends Equatable {
     height,
     quality,
     source,
+    duration,
     metadata,
   ];
 
@@ -83,6 +97,7 @@ class Movie extends Equatable {
     int? height,
     String? quality,
     String? source,
+    String? duration,
     MovieMetadata? metadata,
   }) {
     return Movie(
@@ -93,6 +108,7 @@ class Movie extends Equatable {
       height: height ?? this.height,
       quality: quality ?? this.quality,
       source: source ?? this.source,
+      duration: duration ?? this.duration,
       metadata: metadata ?? this.metadata,
     );
   }

@@ -38,3 +38,7 @@ class DragAndDropMoviesEvent extends MoviesRenamerEvent {
   @override
   List<Object?> get props => [filePaths];
 }
+
+class ExportMoviesEvent extends MoviesRenamerEvent {
+  const ExportMoviesEvent();
+}

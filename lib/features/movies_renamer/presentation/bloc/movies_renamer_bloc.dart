@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/clear_all_movies_usecase.dart';
+import 'package:tagdoc/features/movies_renamer/domain/usecases/export_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_initial_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movies_from_directories_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/load_movies_from_paths.dart';
@@ -18,6 +19,7 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
   final SaveMoviesUsecase _saveMovies;
   final ClearAllMoviesUsecase _clearAllMovies;
   final LoadMoviesFromPathsUsecase _loadMoviesFromPaths;
+  final ExportMoviesUsecase _exportMovies;
 
   MoviesRenamerBloc({
     required GetMoviesFromDirectoriesUsecase getMovies,
@@ -26,12 +28,14 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     required SaveMoviesUsecase saveMovies,
     required ClearAllMoviesUsecase clearAllMovies,
     required LoadMoviesFromPathsUsecase loadMoviesFromPaths,
+    required ExportMoviesUsecase exportMovies,
   }) : _clearAllMovies = clearAllMovies,
        _loadMoviesFromPaths = loadMoviesFromPaths,
        _saveMovies = saveMovies,
        _getInitialMovies = getInitialMovies,
        _getMovies = getMovies,
        _renameMovie = renameMovie,
+       _exportMovies = exportMovies,
        super(MoviesRenamerInitial()) {
     on<GetInitialMoviesEvent>((event, emit) async {
       final result = await _getInitialMovies(const GetInitialMoviesParams());
@@ -118,6 +122,10 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
       emit(MoviesRenamerLoading(movies: state.movies));
       _clearAllMovies(ClearAllMoviesParams());
       emit(MoviesRenamerLoaded(movies: []));
+    });
+
+    on<ExportMoviesEvent>((event, emit) async {
+      await _exportMovies(ExportMoviesParams());
     });
   }
 
