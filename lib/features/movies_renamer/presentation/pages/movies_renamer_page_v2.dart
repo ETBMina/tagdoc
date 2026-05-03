@@ -1,6 +1,8 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tagdoc/core/presentation/dialog_utils.dart';
+import 'package:tagdoc/core/presentation/overlay_utils.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/bloc/movies_renamer_bloc.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/action_sidebar_v2.dart';
@@ -15,122 +17,147 @@ class MoviesRenamerPageV2 extends StatelessWidget {
     debugPrint('MoviesRenamerPageV2 build');
     return BlocProvider(
       create: (context) => serviceLocator<MoviesRenamerBloc>(),
-      child: Builder(
-        builder: (context) {
-          final bloc = context.read<MoviesRenamerBloc>();
-          return ScaffoldPage(
-            padding: EdgeInsets.zero,
-            content: Container(
-              color: TagDocColors.surface,
-              child: Row(
-                children: [
-                  // Main Content Canvas
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(40.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      child: _MoviesRenamerPageContent(),
+    );
+  }
+
+}
+
+class _MoviesRenamerPageContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<MoviesRenamerBloc>();
+    return ScaffoldPage(
+      padding: EdgeInsets.zero,
+      content: BlocListener<MoviesRenamerBloc, MoviesRenamerState>(
+        listener: (context, state) {
+          if (state is MoviesRenamerSuccess) {
+            OverlayUtils.showSuccess(context, state.message);
+          } else if (state is MoviesRenamerError) {
+            OverlayUtils.showError(context, state.message);
+          }
+        },
+        child: Container(
+          color: TagDocColors.surface,
+          child: Row(
+            children: [
+              // Main Content Canvas
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(40.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // Header
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Text(
-                                'Renamer',
-                                style: TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.w800,
-                                  color: TagDocColors.onSurface,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: TagDocColors.primary.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Text(
-                                      '02 Items Selected',
-                                      style: TextStyle(
-                                        color: TagDocColors.primary,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: GestureDetector(
-                                        onTap: () {},
-                                        child: const Text(
-                                          'Clear',
-                                          style: TextStyle(
-                                            color:
-                                                TagDocColors.onSurfaceVariant,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            decoration:
-                                                TextDecoration.underline,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          const Text(
+                            'Renamer',
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 36,
+                              fontWeight: FontWeight.w800,
+                              color: TagDocColors.onSurface,
+                              letterSpacing: -0.5,
+                            ),
                           ),
-                          const SizedBox(height: 16),
-                          // Movie Card List
-                          Expanded(child: MoviesCardsListviewWdgt(bloc: bloc)),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: TagDocColors.primary.withValues(
+                                alpha: 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              children: [
+                                const Text(
+                                  '02 Items Selected',
+                                  style: TextStyle(
+                                    color: TagDocColors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () => DialogUtils.showConfirmation(
+                                      context: context,
+                                      title: 'Clear All Movies',
+                                      content: 'Are you sure you want to clear all movies? This action cannot be undone.',
+                                      confirmText: 'Clear All',
+                                      onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
+                                    ),
+                                    child: const Text(
+                                      'Clear',
+                                      style: TextStyle(
+                                        color:
+                                            TagDocColors.onSurfaceVariant,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        decoration:
+                                            TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                      // Movie Card List
+                      Expanded(
+                          child: MoviesCardsListviewWdgt(bloc: bloc)),
+                    ],
                   ),
-
-                  // Action Sidebar (Right Panel)
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 40,
-                      bottom: 40,
-                      right: 40,
-                    ),
-                    child: SingleChildScrollView(
-                      child: ActionSidebarV2(
-                        onRenameAll: () {
-                          bloc.add(const RenameAllMoviesEvent());
-                        },
-                        onExport: () {
-                          bloc.add(const ExportMoviesEvent());
-                        },
-                        onAddMovies: () {
-                          bloc.add(const SelectMoviesEvent());
-                        },
-                        onClearAll: () {
-                          bloc.add(const ClearAllMoviesEvent());
-                        },
-                        onApplyBatchChanges: () {},
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+
+              // Action Sidebar (Right Panel)
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 40,
+                  bottom: 40,
+                  right: 40,
+                ),
+                child: SingleChildScrollView(
+                  child: ActionSidebarV2(
+                    onRenameAll: () {
+                      bloc.add(const RenameAllMoviesEvent());
+                    },
+                    onExport: () {
+                      bloc.add(const ExportMoviesEvent());
+                    },
+                    onAddMovies: () {
+                      bloc.add(const SelectMoviesEvent());
+                    },
+                    onClearAll: () => DialogUtils.showConfirmation(
+                      context: context,
+                      title: 'Clear All Movies',
+                      content: 'Are you sure you want to clear all movies? This action cannot be undone.',
+                      confirmText: 'Clear All',
+                      onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
+                    ),
+                    onApplyBatchChanges: () {},
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
+
 }
 
 class MoviesCardsListviewWdgt extends StatefulWidget {
@@ -165,17 +192,7 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
           },
           builder: (context, state) {
             debugPrint('Listview rebuild');
-            // if (state is MoviesRenamerLoading) {
-            //   return const Center(child: ProgressBar());
-            // } else
-            if (state is MoviesRenamerError) {
-              return Center(
-                child: Text(
-                  state.message,
-                  style: const TextStyle(color: TagDocColors.error),
-                ),
-              );
-            } else if (state is MoviesRenamerLoaded) {
+            if (state is MoviesRenamerLoaded) {
               if (state.movies.isEmpty) {
                 return const Center(
                   child: Text(
@@ -201,7 +218,7 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
             }
 
             // Initial state or other states
-            print('Initial State');
+            debugPrint('Initial State');
             return const Center(
               child: Text(
                 'Select some movies to begin renaming',

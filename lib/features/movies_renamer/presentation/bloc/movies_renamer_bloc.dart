@@ -101,7 +101,10 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
       if (errorMessage != null) {
         emit(MoviesRenamerError(message: errorMessage!, movies: state.movies));
       } else {
-        emit(MoviesRenamerSuccess(movies: state.movies));
+        emit(MoviesRenamerSuccess(
+          movies: state.movies,
+          message: 'Successfully renamed ${updatedMovies.length} movie${updatedMovies.length == 1 ? '' : 's'}.',
+        ));
         emit(MoviesRenamerLoaded(movies: updatedMovies));
       }
     });
@@ -119,7 +122,6 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     });
 
     on<ClearAllMoviesEvent>((event, emit) {
-      emit(MoviesRenamerLoading(movies: state.movies));
       _clearAllMovies(ClearAllMoviesParams());
       emit(MoviesRenamerLoaded(movies: []));
     });

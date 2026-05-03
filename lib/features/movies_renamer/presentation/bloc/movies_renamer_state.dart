@@ -27,5 +27,9 @@ class MoviesRenamerError extends MoviesRenamerState {
 }
 
 class MoviesRenamerSuccess extends MoviesRenamerState {
-  const MoviesRenamerSuccess({required super.movies});
+  final String message;
+  const MoviesRenamerSuccess({required super.movies, required this.message});
+
+  @override
+  List<Object?> get props => [movies, message];
 }
