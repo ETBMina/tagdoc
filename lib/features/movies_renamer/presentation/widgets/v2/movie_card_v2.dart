@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/config/settings_manager.dart';
+import 'package:tagdoc/core/presentation/dialog_utils.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_dropdown.dart';
@@ -8,11 +9,13 @@ import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_text_f
 class MovieCardV2 extends StatefulWidget {
   final Movie movie;
   final Function(Movie updatedMovie) onUpdateMovie;
+  final VoidCallback onRemoveMovie;
 
   const MovieCardV2({
     super.key,
     required this.movie,
     required this.onUpdateMovie,
+    required this.onRemoveMovie,
   });
 
   @override
@@ -218,9 +221,14 @@ class _MovieCardV2State extends State<MovieCardV2> {
                               FluentIcons.delete,
                               color: TagDocColors.onSurfaceVariant,
                             ),
-                            onPressed: () {
-                              // Handle delete (would communicate back via callback or BLoC)
-                            },
+                            onPressed: () => DialogUtils.showConfirmation(
+                              context: context,
+                              title: 'Remove Movie',
+                              content:
+                                  'Are you sure you want to remove "${widget.movie.fileName}"?',
+                              confirmText: 'Remove',
+                              onConfirm: widget.onRemoveMovie,
+                            ),
                           ),
                         ],
                       ),

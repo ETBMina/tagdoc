@@ -42,3 +42,11 @@ class DragAndDropMoviesEvent extends MoviesRenamerEvent {
 class ExportMoviesEvent extends MoviesRenamerEvent {
   const ExportMoviesEvent();
 }
+
+class RemoveMovieEvent extends MoviesRenamerEvent {
+  final Movie movie;
+  const RemoveMovieEvent({required this.movie});
+
+  @override
+  List<Object?> get props => [movie];
+}

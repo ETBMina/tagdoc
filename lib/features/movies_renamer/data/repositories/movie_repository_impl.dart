@@ -146,4 +146,9 @@ class MovieRepositoryImpl implements BaseMovieRepository {
       return Left(Failure(message: 'Failed to export movies to CSV: $e'));
     }
   }
+
+  @override
+  void removeMovie(Movie movie) {
+    _currentMovies.remove(movie);
+  }
 }

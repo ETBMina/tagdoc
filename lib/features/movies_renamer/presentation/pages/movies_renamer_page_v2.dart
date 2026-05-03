@@ -20,7 +20,6 @@ class MoviesRenamerPageV2 extends StatelessWidget {
       child: _MoviesRenamerPageContent(),
     );
   }
-
 }
 
 class _MoviesRenamerPageContent extends StatelessWidget {
@@ -91,19 +90,19 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                                     onTap: () => DialogUtils.showConfirmation(
                                       context: context,
                                       title: 'Clear All Movies',
-                                      content: 'Are you sure you want to clear all movies? This action cannot be undone.',
+                                      content:
+                                          'Are you sure you want to clear all movies? This action cannot be undone.',
                                       confirmText: 'Clear All',
-                                      onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
+                                      onConfirm: () =>
+                                          bloc.add(const ClearAllMoviesEvent()),
                                     ),
                                     child: const Text(
                                       'Clear',
                                       style: TextStyle(
-                                        color:
-                                            TagDocColors.onSurfaceVariant,
+                                        color: TagDocColors.onSurfaceVariant,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
-                                        decoration:
-                                            TextDecoration.underline,
+                                        decoration: TextDecoration.underline,
                                       ),
                                     ),
                                   ),
@@ -115,8 +114,7 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       // Movie Card List
-                      Expanded(
-                          child: MoviesCardsListviewWdgt(bloc: bloc)),
+                      Expanded(child: MoviesCardsListviewWdgt(bloc: bloc)),
                     ],
                   ),
                 ),
@@ -124,11 +122,7 @@ class _MoviesRenamerPageContent extends StatelessWidget {
 
               // Action Sidebar (Right Panel)
               Padding(
-                padding: const EdgeInsets.only(
-                  top: 40,
-                  bottom: 40,
-                  right: 40,
-                ),
+                padding: const EdgeInsets.only(top: 40, bottom: 40, right: 40),
                 child: SingleChildScrollView(
                   child: ActionSidebarV2(
                     onRenameAll: () {
@@ -143,7 +137,8 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                     onClearAll: () => DialogUtils.showConfirmation(
                       context: context,
                       title: 'Clear All Movies',
-                      content: 'Are you sure you want to clear all movies? This action cannot be undone.',
+                      content:
+                          'Are you sure you want to clear all movies? This action cannot be undone.',
                       confirmText: 'Clear All',
                       onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
                     ),
@@ -157,7 +152,6 @@ class _MoviesRenamerPageContent extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class MoviesCardsListviewWdgt extends StatefulWidget {
@@ -188,7 +182,8 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
             : Colors.transparent,
         child: BlocBuilder<MoviesRenamerBloc, MoviesRenamerState>(
           buildWhen: (previous, current) {
-            return current is MoviesRenamerLoaded;
+            return current is MoviesRenamerLoaded &&
+                previous.movies != current.movies;
           },
           builder: (context, state) {
             debugPrint('Listview rebuild');
@@ -206,10 +201,16 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
                 itemCount: state.movies.length,
                 itemBuilder: (context, index) {
                   return MovieCardV2(
+                    key: ValueKey(state.movies[index].filePath),
                     movie: state.movies[index],
                     onUpdateMovie: (updatedMovie) {
                       widget.bloc.add(
                         UpdateMovieDataEvent(updatedMovie: updatedMovie),
+                      );
+                    },
+                    onRemoveMovie: () {
+                      widget.bloc.add(
+                        RemoveMovieEvent(movie: state.movies[index]),
                       );
                     },
                   );

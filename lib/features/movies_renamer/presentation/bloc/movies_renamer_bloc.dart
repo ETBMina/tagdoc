@@ -6,6 +6,7 @@ import 'package:tagdoc/features/movies_renamer/domain/usecases/export_movies_use
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_initial_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_movies_from_directories_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/load_movies_from_paths.dart';
+import 'package:tagdoc/features/movies_renamer/domain/usecases/remove_movie_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/rename_movie_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/save_movies_usecase.dart';
 
@@ -20,6 +21,7 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
   final ClearAllMoviesUsecase _clearAllMovies;
   final LoadMoviesFromPathsUsecase _loadMoviesFromPaths;
   final ExportMoviesUsecase _exportMovies;
+  final RemoveMovieUsecase _removeMovie;
 
   MoviesRenamerBloc({
     required GetMoviesFromDirectoriesUsecase getMovies,
@@ -29,7 +31,9 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     required ClearAllMoviesUsecase clearAllMovies,
     required LoadMoviesFromPathsUsecase loadMoviesFromPaths,
     required ExportMoviesUsecase exportMovies,
-  }) : _clearAllMovies = clearAllMovies,
+    required RemoveMovieUsecase removeMovie,
+  }) : _removeMovie = removeMovie,
+       _clearAllMovies = clearAllMovies,
        _loadMoviesFromPaths = loadMoviesFromPaths,
        _saveMovies = saveMovies,
        _getInitialMovies = getInitialMovies,
@@ -101,10 +105,13 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
       if (errorMessage != null) {
         emit(MoviesRenamerError(message: errorMessage!, movies: state.movies));
       } else {
-        emit(MoviesRenamerSuccess(
-          movies: state.movies,
-          message: 'Successfully renamed ${updatedMovies.length} movie${updatedMovies.length == 1 ? '' : 's'}.',
-        ));
+        emit(
+          MoviesRenamerSuccess(
+            movies: state.movies,
+            message:
+                'Successfully renamed ${updatedMovies.length} movie${updatedMovies.length == 1 ? '' : 's'}.',
+          ),
+        );
         emit(MoviesRenamerLoaded(movies: updatedMovies));
       }
     });
@@ -128,6 +135,13 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
 
     on<ExportMoviesEvent>((event, emit) async {
       await _exportMovies(ExportMoviesParams());
+    });
+
+    on<RemoveMovieEvent>((event, emit) async {
+      if (state is! MoviesRenamerLoaded) return;
+      await _removeMovie(RemoveMovieParams(movie: event.movie));
+      final updatedMovies = List<Movie>.from(state.movies)..remove(event.movie);
+      emit(MoviesRenamerLoaded(movies: updatedMovies));
     });
   }
 
