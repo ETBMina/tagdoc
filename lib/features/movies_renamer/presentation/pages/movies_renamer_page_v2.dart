@@ -75,13 +75,25 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                const Text(
-                                  '02 Items Selected',
-                                  style: TextStyle(
-                                    color: TagDocColors.primary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                BlocBuilder<
+                                  MoviesRenamerBloc,
+                                  MoviesRenamerState
+                                >(
+                                  buildWhen: (previous, current) {
+                                    return current is MoviesSelectionChanged &&
+                                        previous.selectedMoviePaths.length !=
+                                            current.selectedMoviePaths.length;
+                                  },
+                                  builder: (context, state) {
+                                    return Text(
+                                      '${bloc.state.selectedMoviePaths.length} Items Selected',
+                                      style: const TextStyle(
+                                        color: TagDocColors.primary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  },
                                 ),
                                 const SizedBox(width: 8),
                                 MouseRegion(
@@ -211,6 +223,14 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
                     onRemoveMovie: () {
                       widget.bloc.add(
                         RemoveMovieEvent(movie: state.movies[index]),
+                      );
+                    },
+                    onToggleMovieSelection: (isSelected) {
+                      widget.bloc.add(
+                        ToggleMovieSelectionEvent(
+                          moviePath: state.movies[index].filePath,
+                          isSelected: isSelected,
+                        ),
                       );
                     },
                   );

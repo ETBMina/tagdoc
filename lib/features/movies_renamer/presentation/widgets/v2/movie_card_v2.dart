@@ -10,12 +10,14 @@ class MovieCardV2 extends StatefulWidget {
   final Movie movie;
   final Function(Movie updatedMovie) onUpdateMovie;
   final VoidCallback onRemoveMovie;
+  final Function(bool isSelected) onToggleMovieSelection;
 
   const MovieCardV2({
     super.key,
     required this.movie,
     required this.onUpdateMovie,
     required this.onRemoveMovie,
+    required this.onToggleMovieSelection,
   });
 
   @override
@@ -103,6 +105,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
                     setState(() {
                       _isSelected = val ?? false;
                     });
+                    widget.onToggleMovieSelection(_isSelected);
                   },
                 ),
                 const SizedBox(width: 16),

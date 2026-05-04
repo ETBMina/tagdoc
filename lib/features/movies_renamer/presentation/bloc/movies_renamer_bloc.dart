@@ -143,6 +143,21 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
       final updatedMovies = List<Movie>.from(state.movies)..remove(event.movie);
       emit(MoviesRenamerLoaded(movies: updatedMovies));
     });
+
+    on<ToggleMovieSelectionEvent>((event, emit) async {
+      final selectedMoviePaths = {...state.selectedMoviePaths};
+      if (event.isSelected) {
+        selectedMoviePaths.add(event.moviePath);
+      } else {
+        selectedMoviePaths.remove(event.moviePath);
+      }
+      emit(
+        MoviesSelectionChanged(
+          movies: state.movies,
+          selectedMoviePaths: selectedMoviePaths,
+        ),
+      );
+    });
   }
 
   @override

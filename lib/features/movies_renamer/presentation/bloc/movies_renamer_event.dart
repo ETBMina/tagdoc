@@ -50,3 +50,16 @@ class RemoveMovieEvent extends MoviesRenamerEvent {
   @override
   List<Object?> get props => [movie];
 }
+
+class ToggleMovieSelectionEvent extends MoviesRenamerEvent {
+  final String moviePath;
+  final bool isSelected;
+
+  const ToggleMovieSelectionEvent({
+    required this.moviePath,
+    required this.isSelected,
+  });
+
+  @override
+  List<Object?> get props => [moviePath, isSelected];
+}
