@@ -64,15 +64,9 @@ class MovieRepositoryImpl implements BaseMovieRepository {
       );
 
       // Create a new Movie object with the updated path and name
-      final updatedMovie = MovieModel(
+      final updatedMovie = params.movie.copyWith(
         filePath: newPath,
         fileName: newFileName,
-        fileSize: params.movie.fileSize,
-        width: params.movie.width,
-        height: params.movie.height,
-        quality: params.movie.quality,
-        source: params.movie.source,
-        metadata: params.movie.metadata,
       );
 
       return Right(updatedMovie);
