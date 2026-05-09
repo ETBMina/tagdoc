@@ -117,15 +117,18 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     });
 
     on<UpdateMovieDataEvent>((event, emit) {
-      if (state is MoviesRenamerLoaded) {
-        final updatedMoviesList = state.movies.map((movie) {
-          return movie.filePath == event.updatedMovie.filePath
-              ? event.updatedMovie
-              : movie;
-        }).toList();
+      final updatedMoviesList = state.movies.map((movie) {
+        return movie.filePath == event.updatedMovie.filePath
+            ? event.updatedMovie
+            : movie;
+      }).toList();
 
-        emit(MoviesRenamerLoaded(movies: updatedMoviesList));
-      }
+      emit(
+        MoviesRenamerLoaded(
+          movies: updatedMoviesList,
+          selectedMoviePaths: state.selectedMoviePaths,
+        ),
+      );
     });
 
     on<ClearAllMoviesEvent>((event, emit) {
@@ -138,7 +141,6 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     });
 
     on<RemoveMovieEvent>((event, emit) async {
-      if (state is! MoviesRenamerLoaded) return;
       await _removeMovie(RemoveMovieParams(movie: event.movie));
       final updatedMovies = List<Movie>.from(state.movies)..remove(event.movie);
       emit(MoviesRenamerLoaded(movies: updatedMovies));
