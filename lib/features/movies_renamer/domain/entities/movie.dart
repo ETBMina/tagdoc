@@ -12,6 +12,7 @@ class Movie extends Equatable {
   final String? source;
   final String? duration;
   final MovieMetadata? metadata;
+  final String? poster;
 
   const Movie({
     required this.filePath,
@@ -23,6 +24,7 @@ class Movie extends Equatable {
     this.source,
     this.duration,
     this.metadata,
+    this.poster,
   });
 
   List<dynamic> toCsvRow() {
@@ -92,6 +94,7 @@ class Movie extends Equatable {
     source,
     duration,
     metadata,
+    poster,
   ];
 
   Movie copyWith({
@@ -104,6 +107,7 @@ class Movie extends Equatable {
     String? source,
     String? duration,
     MovieMetadata? metadata,
+    String? posterBase64,
   }) {
     return Movie(
       filePath: filePath ?? this.filePath,
@@ -115,6 +119,7 @@ class Movie extends Equatable {
       source: source ?? this.source,
       duration: duration ?? this.duration,
       metadata: metadata ?? this.metadata,
+      poster: posterBase64 ?? this.poster,
     );
   }
 }

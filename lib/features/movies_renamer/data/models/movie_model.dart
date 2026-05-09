@@ -14,11 +14,16 @@ class MovieModel extends Movie {
     super.source,
     super.duration,
     super.metadata,
+    super.poster,
   });
 
   factory MovieModel.fromJson(Map<String, dynamic> json, String filePath) {
     try {
       final fileName = p.basename(filePath);
+      // Extract poster base64 data from the poster object if present
+      final posterObj = json['poster'] as Map<String, dynamic>?;
+      final posterData = posterObj?['data'] as String?;
+
       return MovieModel(
         filePath: filePath,
         fileName: fileName,
@@ -29,6 +34,7 @@ class MovieModel extends Movie {
         source: SettingsManager.predictSource(fileName),
         duration: json['duration'] as String?,
         metadata: MovieMetadataModel.fromJson(json),
+        poster: posterData,
       );
     } catch (e) {
       throw FormatException('Error parsing MovieModel from JSON: $e');

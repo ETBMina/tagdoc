@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/core/presentation/dialog_utils.dart';
@@ -151,14 +152,28 @@ class _MovieCardV2State extends State<MovieCardV2> {
                     ],
                   ),
                   clipBehavior: Clip.antiAlias,
-                  // Poster Placeholder (Actual posters would come from metadata or local cache)
-                  child: const Center(
-                    child: Icon(
-                      FluentIcons.my_movies_t_v,
-                      size: 24,
-                      color: TagDocColors.onSurfaceVariant,
-                    ),
-                  ),
+                  child: widget.movie.poster != null
+                      ? Image.memory(
+                          base64Decode(widget.movie.poster!),
+                          fit: BoxFit.cover,
+                          width: 64,
+                          height: 96,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Center(
+                                child: Icon(
+                                  FluentIcons.my_movies_t_v,
+                                  size: 24,
+                                  color: TagDocColors.onSurfaceVariant,
+                                ),
+                              ),
+                        )
+                      : const Center(
+                          child: Icon(
+                            FluentIcons.my_movies_t_v,
+                            size: 24,
+                            color: TagDocColors.onSurfaceVariant,
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 16),
                 // Meta fields
@@ -295,7 +310,9 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                     _resolution = v;
                                     widget.onUpdateMovie(
                                       widget.movie.copyWith(
-                                        height: int.parse(v.replaceAll('p', '')),
+                                        height: int.parse(
+                                          v.replaceAll('p', ''),
+                                        ),
                                       ),
                                     );
                                   });

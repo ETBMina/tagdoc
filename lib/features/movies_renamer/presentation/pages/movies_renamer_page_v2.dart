@@ -80,7 +80,8 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                                   MoviesRenamerState
                                 >(
                                   buildWhen: (previous, current) {
-                                    return current is MoviesSelectionChanged &&
+                                    return (current is MoviesSelectionChanged ||
+                                            current is MoviesRenamerLoaded) &&
                                         previous.selectedMoviePaths.length !=
                                             current.selectedMoviePaths.length;
                                   },
