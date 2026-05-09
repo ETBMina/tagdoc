@@ -63,3 +63,22 @@ class ToggleMovieSelectionEvent extends MoviesRenamerEvent {
   @override
   List<Object?> get props => [moviePath, isSelected];
 }
+
+class ApplyBatchEditEvent extends MoviesRenamerEvent {
+  final String? resolution;
+  final String? quality;
+  final String? source;
+
+  const ApplyBatchEditEvent({this.resolution, this.quality, this.source});
+
+  @override
+  List<Object?> get props => [resolution, quality, source];
+}
+
+// class BatchEditMoviesEvent extends MoviesRenamerEvent {
+//   final String resolution;
+//   final String quality;
+//   final String source;
+
+//   const BatchEditMoviesEvent();
+// }

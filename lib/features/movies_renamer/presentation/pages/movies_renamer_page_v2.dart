@@ -154,7 +154,15 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                       confirmText: 'Clear All',
                       onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
                     ),
-                    onApplyBatchChanges: () {},
+                    onApplyBatchChanges: ({resolution, quality, source}) {
+                      bloc.add(
+                        ApplyBatchEditEvent(
+                          resolution: resolution,
+                          quality: quality,
+                          source: source,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

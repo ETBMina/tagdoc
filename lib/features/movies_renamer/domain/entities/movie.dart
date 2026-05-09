@@ -70,9 +70,14 @@ class Movie extends Equatable {
   }
 
   String getResolutionString() {
-    if (width >= 3840 || height >= 2160) return '2160p';
-    if (width >= 1920 || height >= 1080) return '1080p';
-    if (width >= 1280 || height >= 720) return '720p';
+    if (height >= 2160) return '2160p';
+    if (height >= 1600) return '2160p'; // Cut 4K
+    if (height >= 1080) return '1080p';
+    if (height >= 800) return '1080p'; // Cut 1080p
+    if (height >= 720) return '720p';
+    if (height >= 576) return '576p'; // Uncut 576p
+    if (height >= 520) return '720p'; // Cut 720p
+
     return '${height}p';
   }
 

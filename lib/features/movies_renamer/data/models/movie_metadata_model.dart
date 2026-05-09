@@ -16,12 +16,12 @@ class MovieMetadataModel extends MovieMetadata {
   factory MovieMetadataModel.fromJson(Map<String, dynamic> json) {
     try {
       return MovieMetadataModel(
-        title: json['title'] as String,
-        releaseDate: json['date'] as String,
-        genres: (json['genre'] as String).split('|'),
-        actors: (json['artist'] as String).split('|'),
-        directors: (json['encoder'] as String).split('|'),
-        writers: (json['composer'] as String).split('|'),
+        title: json['title'] as String? ?? '',
+        releaseDate: json['date'] as String? ?? '',
+        genres: (json['genre'] as String?)?.split('|') ?? [],
+        actors: (json['artist'] as String?)?.split('|') ?? [],
+        directors: (json['encoder'] as String?)?.split('|') ?? [],
+        writers: (json['composer'] as String?)?.split('|') ?? [],
         overview: json['synopsis'] as String?,
         tagline: json['description'] as String?,
         comment: json['comment'] as String?,

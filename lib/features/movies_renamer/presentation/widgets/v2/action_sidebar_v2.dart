@@ -9,7 +9,7 @@ class ActionSidebarV2 extends StatelessWidget {
   final VoidCallback onExport;
   final VoidCallback onAddMovies;
   final VoidCallback onClearAll;
-  final VoidCallback onApplyBatchChanges;
+  final void Function({String? resolution, String? quality, String? source}) onApplyBatchChanges;
 
   const ActionSidebarV2({
     super.key,
@@ -35,7 +35,11 @@ class ActionSidebarV2 extends StatelessWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(FluentIcons.lightning_bolt, color: TagDocColors.primary, size: 20),
+                    Icon(
+                      FluentIcons.lightning_bolt,
+                      color: TagDocColors.primary,
+                      size: 20,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'Batch Operations',
@@ -64,17 +68,29 @@ class ActionSidebarV2 extends StatelessWidget {
                   onPressed: onAddMovies,
                 ),
                 const SizedBox(height: 16),
-                const Divider(style: DividerThemeData(verticalMargin: EdgeInsets.all(0), horizontalMargin: EdgeInsets.all(0))),
+                const Divider(
+                  style: DividerThemeData(
+                    verticalMargin: EdgeInsets.all(0),
+                    horizontalMargin: EdgeInsets.all(0),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 HoverButton(
                   onPressed: onClearAll,
                   cursor: SystemMouseCursors.click,
                   builder: (context, states) {
-                    final bgColor = states.isHovered ? TagDocColors.error.withValues(alpha: 0.1) : Colors.transparent;
-                    final textColor = states.isHovered ? TagDocColors.error : TagDocColors.onSurfaceVariant;
+                    final bgColor = states.isHovered
+                        ? TagDocColors.error.withValues(alpha: 0.1)
+                        : Colors.transparent;
+                    final textColor = states.isHovered
+                        ? TagDocColors.error
+                        : TagDocColors.onSurfaceVariant;
                     return Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 24,
+                      ),
                       decoration: BoxDecoration(
                         color: bgColor,
                         borderRadius: BorderRadius.circular(8),
@@ -96,63 +112,123 @@ class ActionSidebarV2 extends StatelessWidget {
                       ),
                     );
                   },
-                )
+                ),
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
 
           // Batch Edit panel
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: TagDocColors.surfaceBright.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(FluentIcons.equalizer, color: TagDocColors.primary, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Batch Edit',
-                      style: TagDocTextStyles.sidebarHeader,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                V2Dropdown(
-                  label: 'Resolution',
-                  value: 'Select Resolution',
-                  items: ['Select Resolution', ...SettingsManager.resolutions],
-                  onChanged: (v) {},
-                ),
-                const SizedBox(height: 12),
-                V2Dropdown(
-                  label: 'Quality',
-                  value: 'Select Quality',
-                  items: ['Select Quality', ...SettingsManager.qualities.map((q) => q.displayName)],
-                  onChanged: (v) {},
-                ),
-                const SizedBox(height: 12),
-                V2Dropdown(
-                  label: 'Source',
-                  value: 'Select Source',
-                  items: ['Select Source', ...SettingsManager.sources.map((s) => s.displayName)],
-                  onChanged: (v) {},
-                ),
-                const SizedBox(height: 24),
-                V2GradientButton(
-                  label: 'Apply Changes',
-                  icon: FluentIcons.accept,
-                  onPressed: onApplyBatchChanges,
-                ),
-              ],
-            ),
+          BatchEditPanel(onApplyBatchChanges: onApplyBatchChanges),
+        ],
+      ),
+    );
+  }
+}
+
+class BatchEditPanel extends StatefulWidget {
+  const BatchEditPanel({super.key, required this.onApplyBatchChanges});
+
+  final void Function({String? resolution, String? quality, String? source}) onApplyBatchChanges;
+
+  @override
+  State<BatchEditPanel> createState() => _BatchEditPanelState();
+}
+
+class _BatchEditPanelState extends State<BatchEditPanel> {
+  static const String noChange = 'No Change';
+
+  late String _resolution;
+  late String _quality;
+  late String _source;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolution = noChange;
+    _quality = noChange;
+    _source = noChange;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: TagDocColors.surfaceBright.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(
+                FluentIcons.equalizer,
+                color: TagDocColors.primary,
+                size: 20,
+              ),
+              SizedBox(width: 8),
+              Text('Batch Edit', style: TagDocTextStyles.sidebarHeader),
+            ],
+          ),
+          const SizedBox(height: 24),
+          V2Dropdown(
+            label: 'Resolution',
+            value: _resolution,
+            items: [noChange, ...SettingsManager.resolutions],
+            onChanged: (v) {
+              setState(() {
+                _resolution = v!;
+              });
+            },
+          ),
+          const SizedBox(height: 12),
+          V2Dropdown(
+            label: 'Quality',
+            value: _quality,
+            items: [
+              noChange,
+              ...SettingsManager.qualities.map((q) => q.displayName),
+            ],
+            onChanged: (v) {
+              setState(() {
+                _quality = v!;
+              });
+            },
+          ),
+          const SizedBox(height: 12),
+          V2Dropdown(
+            label: 'Source',
+            value: _source,
+            items: [
+              noChange,
+              ...SettingsManager.sources.map((s) => s.displayName),
+            ],
+            onChanged: (v) {
+              setState(() {
+                _source = v!;
+              });
+            },
+          ),
+          const SizedBox(height: 24),
+          V2GradientButton(
+            label: 'Apply Changes',
+            icon: FluentIcons.accept,
+            onPressed: () {
+              widget.onApplyBatchChanges(
+                resolution: _resolution == noChange ? null : _resolution,
+                quality: _quality == noChange ? null : _quality,
+                source: _source == noChange ? null : _source,
+              );
+              setState(() {
+                _resolution = noChange;
+                _quality = noChange;
+                _source = noChange;
+              });
+            },
           ),
         ],
       ),

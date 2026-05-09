@@ -158,6 +158,31 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
         ),
       );
     });
+
+    on<ApplyBatchEditEvent>((event, emit) async {
+      if (state.selectedMoviePaths.isEmpty)
+        return; // Only apply if movies are selected
+
+      final updatedMovies = state.movies.map((movie) {
+        if (state.selectedMoviePaths.contains(movie.filePath)) {
+          return movie.copyWith(
+            height: event.resolution != null
+                ? int.parse(event.resolution!.replaceAll('p', ''))
+                : movie.height,
+            quality: event.quality ?? movie.quality,
+            source: event.source ?? movie.source,
+          );
+        }
+        return movie;
+      }).toList();
+
+      emit(
+        MoviesRenamerLoaded(
+          movies: updatedMovies,
+          selectedMoviePaths: state.selectedMoviePaths,
+        ),
+      );
+    });
   }
 
   @override

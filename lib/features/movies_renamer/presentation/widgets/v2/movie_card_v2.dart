@@ -59,6 +59,33 @@ class _MovieCardV2State extends State<MovieCardV2> {
   }
 
   @override
+  void didUpdateWidget(MovieCardV2 oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.movie != widget.movie) {
+      final metadata = widget.movie.metadata;
+
+      final newTitle = metadata?.title ?? widget.movie.fileName;
+      if (_titleController.text != newTitle) {
+        _titleController.text = newTitle;
+      }
+
+      String year = '';
+      if (metadata != null && metadata.releaseDate.isNotEmpty) {
+        year = metadata.releaseDate.split('-').first;
+      }
+      if (_yearController.text != year) {
+        _yearController.text = year;
+      }
+
+      setState(() {
+        _resolution = widget.movie.getResolutionString();
+        _quality = widget.movie.quality;
+        _source = widget.movie.source ?? 'None';
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
@@ -268,9 +295,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                     _resolution = v;
                                     widget.onUpdateMovie(
                                       widget.movie.copyWith(
-                                        height: int.parse(
-                                          v.substring(0, v.length - 1),
-                                        ),
+                                        height: int.parse(v.replaceAll('p', '')),
                                       ),
                                     );
                                   });
