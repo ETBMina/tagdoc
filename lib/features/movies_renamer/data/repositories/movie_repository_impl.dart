@@ -99,13 +99,13 @@ class MovieRepositoryImpl implements BaseMovieRepository {
   }
 
   @override
-  Future<Either<Failure, void>> exportMoviesToCsv() async {
+  Future<Either<Failure, void>> exportMoviesToCsv(List<Movie> movies) async {
     try {
       List<List<dynamic>> rows = [
         ["Title", "Quality", "Resolution", "Size", "Source", "Duration"],
       ];
 
-      for (var movie in _currentMovies) {
+      for (var movie in movies) {
         rows.add(movie.toCsvRow());
       }
 

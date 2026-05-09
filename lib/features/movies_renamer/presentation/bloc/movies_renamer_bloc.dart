@@ -134,7 +134,7 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     });
 
     on<ExportMoviesEvent>((event, emit) async {
-      await _exportMovies(ExportMoviesParams());
+      await _exportMovies(ExportMoviesParams(movies: state.movies));
     });
 
     on<RemoveMovieEvent>((event, emit) async {
