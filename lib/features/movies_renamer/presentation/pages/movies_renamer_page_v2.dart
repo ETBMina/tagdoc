@@ -100,15 +100,11 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                                 MouseRegion(
                                   cursor: SystemMouseCursors.click,
                                   child: GestureDetector(
-                                    onTap: () => DialogUtils.showConfirmation(
-                                      context: context,
-                                      title: 'Clear All Movies',
-                                      content:
-                                          'Are you sure you want to clear all movies? This action cannot be undone.',
-                                      confirmText: 'Clear All',
-                                      onConfirm: () =>
-                                          bloc.add(const ClearAllMoviesEvent()),
-                                    ),
+                                    onTap: () {
+                                      bloc.add(
+                                        const ClearSelectedMoviesEvent(),
+                                      );
+                                    },
                                     child: const Text(
                                       'Clear',
                                       style: TextStyle(

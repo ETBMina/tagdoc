@@ -75,10 +75,6 @@ class ApplyBatchEditEvent extends MoviesRenamerEvent {
   List<Object?> get props => [resolution, quality, source];
 }
 
-// class BatchEditMoviesEvent extends MoviesRenamerEvent {
-//   final String resolution;
-//   final String quality;
-//   final String source;
-
-//   const BatchEditMoviesEvent();
-// }
+class ClearSelectedMoviesEvent extends MoviesRenamerEvent {
+  const ClearSelectedMoviesEvent();
+}

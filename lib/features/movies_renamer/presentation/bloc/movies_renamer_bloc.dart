@@ -84,7 +84,7 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     });
 
     on<RenameAllMoviesEvent>((event, emit) async {
-      emit(MoviesRenamerLoading(movies: state.movies));
+      // emit(MoviesRenamerLoading(movies: state.movies));
 
       List<Movie> updatedMovies = [];
       String? errorMessage;
@@ -103,16 +103,26 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
       }
 
       if (errorMessage != null) {
-        emit(MoviesRenamerError(message: errorMessage!, movies: state.movies));
+        emit(
+          MoviesRenamerError(
+            message: errorMessage!,
+            movies: state.movies,
+            selectedMoviePaths: state.selectedMoviePaths,
+          ),
+        );
       } else {
         emit(
           MoviesRenamerSuccess(
             movies: state.movies,
+            selectedMoviePaths: state.selectedMoviePaths,
             message:
                 'Successfully renamed ${updatedMovies.length} movie${updatedMovies.length == 1 ? '' : 's'}.',
           ),
         );
-        emit(MoviesRenamerLoaded(movies: updatedMovies));
+
+        emit(
+          MoviesRenamerLoaded(movies: updatedMovies, selectedMoviePaths: {}),
+        );
       }
     });
 
@@ -183,6 +193,12 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
           movies: updatedMovies,
           selectedMoviePaths: state.selectedMoviePaths,
         ),
+      );
+    });
+
+    on<ClearSelectedMoviesEvent>((event, emit) {
+      emit(
+        MoviesSelectionChanged(movies: state.movies, selectedMoviePaths: {}),
       );
     });
   }
