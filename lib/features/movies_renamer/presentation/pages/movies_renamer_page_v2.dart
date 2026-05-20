@@ -48,78 +48,73 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text(
-                            'Renamer',
-                            style: TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 36,
-                              fontWeight: FontWeight.w800,
-                              color: TagDocColors.onSurface,
-                              letterSpacing: -0.5,
-                            ),
+                      const Text(
+                        'Renamer',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 36,
+                          fontWeight: FontWeight.w800,
+                          color: TagDocColors.onSurface,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: TagDocColors.primary.withValues(
-                                alpha: 0.1,
+                          decoration: BoxDecoration(
+                            color: TagDocColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              BlocBuilder<
+                                MoviesRenamerBloc,
+                                MoviesRenamerState
+                              >(
+                                buildWhen: (previous, current) {
+                                  return (current is MoviesSelectionChanged ||
+                                          current is MoviesRenamerLoaded) &&
+                                      previous.selectedMoviePaths.length !=
+                                          current.selectedMoviePaths.length;
+                                },
+                                builder: (context, state) {
+                                  return Text(
+                                    '${bloc.state.selectedMoviePaths.length} Items Selected',
+                                    style: const TextStyle(
+                                      color: TagDocColors.primary,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                },
                               ),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                BlocBuilder<
-                                  MoviesRenamerBloc,
-                                  MoviesRenamerState
-                                >(
-                                  buildWhen: (previous, current) {
-                                    return (current is MoviesSelectionChanged ||
-                                            current is MoviesRenamerLoaded) &&
-                                        previous.selectedMoviePaths.length !=
-                                            current.selectedMoviePaths.length;
+                              const SizedBox(width: 8),
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    bloc.add(const ClearSelectedMoviesEvent());
                                   },
-                                  builder: (context, state) {
-                                    return Text(
-                                      '${bloc.state.selectedMoviePaths.length} Items Selected',
-                                      style: const TextStyle(
-                                        color: TagDocColors.primary,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    );
-                                  },
-                                ),
-                                const SizedBox(width: 8),
-                                MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      bloc.add(
-                                        const ClearSelectedMoviesEvent(),
-                                      );
-                                    },
-                                    child: const Text(
-                                      'Clear',
-                                      style: TextStyle(
-                                        color: TagDocColors.onSurfaceVariant,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        decoration: TextDecoration.underline,
-                                      ),
+                                  child: const Text(
+                                    'Clear',
+                                    style: TextStyle(
+                                      color: TagDocColors.onSurfaceVariant,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      decoration: TextDecoration.underline,
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       // Movie Card List

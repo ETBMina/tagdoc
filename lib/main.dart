@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'package:tagdoc/features/movies_renamer/presentation/pages/movies_renamer_page_v2.dart';
 import 'package:tagdoc/init_dependencies.dart';
@@ -11,6 +12,10 @@ import 'package:tagdoc/core/config/settings_manager.dart';
 void main() async {
   // make sure the Flutter engine is ready for any async setup
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await windowManager.ensureInitialized();
+  await windowManager.setMinimumSize(const Size(800, 600));
+
   await initDependencies();
 
   // Load dynamic logic for tags (Qualities, Sources)

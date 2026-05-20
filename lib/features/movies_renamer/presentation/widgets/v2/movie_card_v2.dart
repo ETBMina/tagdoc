@@ -269,88 +269,101 @@ class _MovieCardV2State extends State<MovieCardV2> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                // Year Textfield
-                                child: V2TextField(
-                                  label: 'Release',
-                                  controller: _yearController,
-                                  onSubmitted: (v) {
-                                    final updatedMetadata = widget
-                                        .movie
-                                        .metadata
-                                        ?.copyWith(releaseDate: v);
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final yearField = V2TextField(
+                                label: 'Release',
+                                controller: _yearController,
+                                onSubmitted: (v) {
+                                  final updatedMetadata = widget.movie.metadata
+                                      ?.copyWith(releaseDate: v);
+                                  widget.onUpdateMovie(
+                                    widget.movie.copyWith(
+                                      metadata: updatedMetadata,
+                                    ),
+                                  );
+                                },
+                              );
+
+                              final resDropdown = V2Dropdown(
+                                label: 'Resolution',
+                                value: widget.movie.getResolutionString(),
+                                items: SettingsManager.resolutions,
+                                onChanged: (v) {
+                                  if (v != null) {
                                     widget.onUpdateMovie(
                                       widget.movie.copyWith(
-                                        metadata: updatedMetadata,
+                                        height: int.parse(
+                                          v.replaceAll('p', ''),
+                                        ),
                                       ),
                                     );
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                flex: 2,
-                                child: V2Dropdown(
-                                  label: 'Resolution',
-                                  value: widget.movie.getResolutionString(),
-                                  items: SettingsManager.resolutions,
-                                  onChanged: (v) {
-                                    if (v != null) {
-                                      widget.onUpdateMovie(
-                                        widget.movie.copyWith(
-                                          height: int.parse(
-                                            v.replaceAll('p', ''),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                flex: 2,
-                                child: V2Dropdown(
-                                  label: 'Quality',
-                                  value: widget.movie.quality,
-                                  items: List<String>.from(
-                                    SettingsManager.qualities.map(
-                                      (q) => q.displayName,
-                                    ),
+                                  }
+                                },
+                              );
+
+                              final qualityDropdown = V2Dropdown(
+                                label: 'Quality',
+                                value: widget.movie.quality,
+                                items: List<String>.from(
+                                  SettingsManager.qualities.map(
+                                    (q) => q.displayName,
                                   ),
-                                  onChanged: (v) {
-                                    if (v != null) {
-                                      widget.onUpdateMovie(
-                                        widget.movie.copyWith(quality: v),
-                                      );
-                                    }
-                                  },
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                flex: 2,
-                                child: V2Dropdown(
-                                  label: 'Source',
-                                  value: widget.movie.source ?? 'None',
-                                  items: List<String>.from(
-                                    SettingsManager.sources.map(
-                                      (s) => s.displayName,
-                                    ),
+                                onChanged: (v) {
+                                  if (v != null) {
+                                    widget.onUpdateMovie(
+                                      widget.movie.copyWith(quality: v),
+                                    );
+                                  }
+                                },
+                              );
+
+                              final sourceDropdown = V2Dropdown(
+                                label: 'Source',
+                                value: widget.movie.source ?? 'None',
+                                items: List<String>.from(
+                                  SettingsManager.sources.map(
+                                    (s) => s.displayName,
                                   ),
-                                  onChanged: (v) {
-                                    if (v != null) {
-                                      widget.onUpdateMovie(
-                                        widget.movie.copyWith(source: v),
-                                      );
-                                    }
-                                  },
                                 ),
-                              ),
-                            ],
+                                onChanged: (v) {
+                                  if (v != null) {
+                                    widget.onUpdateMovie(
+                                      widget.movie.copyWith(source: v),
+                                    );
+                                  }
+                                },
+                              );
+
+                              if (constraints.maxWidth > 500) {
+                                return Row(
+                                  children: [
+                                    Expanded(flex: 1, child: yearField),
+                                    const SizedBox(width: 8),
+                                    Expanded(flex: 2, child: resDropdown),
+                                    const SizedBox(width: 8),
+                                    Expanded(flex: 2, child: qualityDropdown),
+                                    const SizedBox(width: 8),
+                                    Expanded(flex: 2, child: sourceDropdown),
+                                  ],
+                                );
+                              } else {
+                                return Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    SizedBox(width: 80, child: yearField),
+                                    SizedBox(width: 110, child: resDropdown),
+                                    SizedBox(
+                                      width: 110,
+                                      child: qualityDropdown,
+                                    ),
+                                    SizedBox(width: 110, child: sourceDropdown),
+                                  ],
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),
