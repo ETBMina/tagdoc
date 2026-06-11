@@ -24,3 +24,19 @@ target_link_libraries(${BINARY_NAME} PRIVATE flutter)
 target_link_libraries(${BINARY_NAME} PRIVATE PkgConfig::GTK)
 
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")
+
+# === Custom DLL Copying ===
+# Copy any DLLs from the windows/dlls directory to the output directory.
+# Note: CMAKE_SOURCE_DIR refers to the top-level 'windows' directory.
+set(CUSTOM_DLL_DIR "${CMAKE_SOURCE_DIR}/dlls")
+file(GLOB CUSTOM_DLLS "${CUSTOM_DLL_DIR}/*.dll")
+
+foreach(DLL_FILE ${CUSTOM_DLLS})
+  add_custom_command(
+    TARGET ${BINARY_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${DLL_FILE}
+    $<TARGET_FILE_DIR:${BINARY_NAME}>
+    COMMENT "Copying ${DLL_FILE} to build directory"
+  )
+endforeach()
