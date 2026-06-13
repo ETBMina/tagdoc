@@ -73,26 +73,37 @@ class _MoviesRenamerPageContent extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              BlocBuilder<
-                                MoviesRenamerBloc,
-                                MoviesRenamerState
-                              >(
-                                buildWhen: (previous, current) {
-                                  return (current is MoviesSelectionChanged ||
-                                          current is MoviesRenamerLoaded) &&
-                                      previous.selectedMoviePaths.length !=
-                                          current.selectedMoviePaths.length;
-                                },
-                                builder: (context, state) {
-                                  return Text(
-                                    '${bloc.state.selectedMoviePaths.length} Items Selected',
-                                    style: const TextStyle(
-                                      color: TagDocColors.primary,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
+                              Flexible(
+                                child:
+                                    BlocBuilder<
+                                      MoviesRenamerBloc,
+                                      MoviesRenamerState
+                                    >(
+                                      buildWhen: (previous, current) {
+                                        return (current
+                                                    is MoviesSelectionChanged ||
+                                                current
+                                                    is MoviesRenamerLoaded) &&
+                                            previous
+                                                    .selectedMoviePaths
+                                                    .length !=
+                                                current
+                                                    .selectedMoviePaths
+                                                    .length;
+                                      },
+                                      builder: (context, state) {
+                                        return Text(
+                                          '${bloc.state.selectedMoviePaths.length} Items Selected',
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                            color: TagDocColors.primary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
                               ),
                               const SizedBox(width: 8),
                               MouseRegion(
