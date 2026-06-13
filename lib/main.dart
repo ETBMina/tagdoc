@@ -14,7 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await windowManager.ensureInitialized();
-  await windowManager.setMinimumSize(const Size(800, 600));
+  await windowManager.setMinimumSize(const Size(1200, 600));
 
   await initDependencies();
 
@@ -101,24 +101,40 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     debugPrint('main page built');
-    return NavigationView(
-      pane: NavigationPane(
-        selected: topIndex,
-        onChanged: (index) => setState(() => topIndex = index),
-        // displayMode: ???,
-        items: [
-          PaneItem(
-            icon: const Icon(FluentIcons.home),
-            title: const Text('Renamer'),
-            body: MoviesRenamerPage(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Collapse to compact mode under 1200px (instead of the default 1008px)
+        final PaneDisplayMode displayMode;
+        if (constraints.maxWidth >= 1400) {
+          displayMode = PaneDisplayMode.expanded;
+        } else {
+          displayMode = PaneDisplayMode.compact;
+        }
+
+        return NavigationView(
+          pane: NavigationPane(
+            selected: topIndex,
+            onChanged: (index) => setState(() => topIndex = index),
+            displayMode: displayMode,
+            // Hide toggle button if expanded, show default toggle button otherwise
+            toggleButton: displayMode == PaneDisplayMode.expanded
+                ? null
+                : const PaneToggleButton(),
+            items: [
+              PaneItem(
+                icon: const Icon(FluentIcons.home),
+                title: const Text('Renamer'),
+                body: MoviesRenamerPage(),
+              ),
+              PaneItem(
+                icon: const Icon(FluentIcons.settings),
+                title: const Text('Settings'),
+                body: const Center(child: Text('Settings Page')),
+              ),
+            ],
           ),
-          PaneItem(
-            icon: const Icon(FluentIcons.settings),
-            title: const Text('Settings'),
-            body: const Center(child: Text('Settings Page')),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
