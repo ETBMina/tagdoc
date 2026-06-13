@@ -19,8 +19,10 @@ class V2GradientButton extends StatelessWidget {
       onPressed: onPressed,
       cursor: SystemMouseCursors.click,
       builder: (context, states) {
-        final double scale = states.isPressed ? 0.98 : (states.isHovered ? 1.02 : 1.0);
-        
+        final double scale = states.isPressed
+            ? 0.98
+            : (states.isHovered ? 1.02 : 1.0);
+
         return Transform.scale(
           scale: scale,
           child: Container(
@@ -32,10 +34,7 @@ class V2GradientButton extends StatelessWidget {
               children: [
                 Icon(icon, color: TagDocColors.onPrimaryContainer, size: 20),
                 const SizedBox(width: 12),
-                Text(
-                  label,
-                  style: TagDocTextStyles.primaryButton,
-                ),
+                Text(label, style: TagDocTextStyles.primaryButton),
               ],
             ),
           ),
@@ -65,12 +64,16 @@ class V2SecondaryButton extends StatelessWidget {
       onPressed: onPressed,
       cursor: SystemMouseCursors.click,
       builder: (context, states) {
-        final bgColor = states.isHovered ? TagDocColors.surfaceBright : TagDocColors.surfaceContainerHighest;
-        
+        final bgColor = states.isHovered
+            ? TagDocColors.surfaceBright
+            : TagDocColors.surfaceContainerHighest;
+
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-          decoration: TagDocDecorations.secondaryButton.copyWith(color: bgColor),
+          decoration: TagDocDecorations.secondaryButton.copyWith(
+            color: bgColor,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -78,7 +81,9 @@ class V2SecondaryButton extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 label,
-                style: TagDocTextStyles.secondaryButton.copyWith(color: textColor),
+                style: TagDocTextStyles.secondaryButton.copyWith(
+                  color: textColor,
+                ),
               ),
             ],
           ),

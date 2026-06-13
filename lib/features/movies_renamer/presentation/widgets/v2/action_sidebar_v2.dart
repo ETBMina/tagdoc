@@ -9,7 +9,8 @@ class ActionSidebarV2 extends StatelessWidget {
   final VoidCallback onExport;
   final VoidCallback onAddMovies;
   final VoidCallback onClearAll;
-  final void Function({String? resolution, String? quality, String? source}) onApplyBatchChanges;
+  final void Function({String? resolution, String? quality, String? source})
+  onApplyBatchChanges;
 
   const ActionSidebarV2({
     super.key,
@@ -130,7 +131,8 @@ class ActionSidebarV2 extends StatelessWidget {
 class BatchEditPanel extends StatefulWidget {
   const BatchEditPanel({super.key, required this.onApplyBatchChanges});
 
-  final void Function({String? resolution, String? quality, String? source}) onApplyBatchChanges;
+  final void Function({String? resolution, String? quality, String? source})
+  onApplyBatchChanges;
 
   @override
   State<BatchEditPanel> createState() => _BatchEditPanelState();

@@ -20,10 +20,7 @@ class V2Dropdown extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label.toUpperCase(),
-          style: TagDocTextStyles.fieldLabel,
-        ),
+        Text(label.toUpperCase(), style: TagDocTextStyles.fieldLabel),
         const SizedBox(height: 2),
         SizedBox(
           height: 28, // Matches text field height roughly
