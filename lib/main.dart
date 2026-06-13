@@ -12,7 +12,7 @@ import 'package:tagdoc/core/config/settings_manager.dart';
 void main() async {
   // make sure the Flutter engine is ready for any async setup
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await windowManager.ensureInitialized();
   await windowManager.setMinimumSize(const Size(800, 600));
 
@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
             .blue, // Fluent UI requires a SystemAccentColor for some internal defaults
         navigationPaneTheme: NavigationPaneThemeData(
           backgroundColor: TagDocColors.surfaceContainerLowest,
+          iconPadding: const EdgeInsets.symmetric(horizontal: 10.0),
           selectedIconColor: WidgetStateProperty.all(TagDocColors.primary),
           selectedTextStyle: WidgetStateProperty.all(
             const TextStyle(
