@@ -1,13 +1,13 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 
-class V2Dropdown extends StatelessWidget {
+class RenamerDropdown extends StatelessWidget {
   final String label;
   final String value;
   final List<String> items;
   final ValueChanged<String?> onChanged;
 
-  const V2Dropdown({
+  const RenamerDropdown({
     super.key,
     required this.label,
     required this.value,

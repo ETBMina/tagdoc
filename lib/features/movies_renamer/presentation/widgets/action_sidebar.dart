@@ -1,10 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
-import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_buttons.dart';
-import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_dropdown.dart';
+import 'package:tagdoc/features/movies_renamer/presentation/widgets/renamer_buttons.dart';
+import 'package:tagdoc/features/movies_renamer/presentation/widgets/renamer_dropdown.dart';
 
-class ActionSidebarV2 extends StatelessWidget {
+class ActionSidebar extends StatelessWidget {
   final VoidCallback onRenameAll;
   final VoidCallback onExport;
   final VoidCallback onAddMovies;
@@ -12,7 +12,7 @@ class ActionSidebarV2 extends StatelessWidget {
   final void Function({String? resolution, String? quality, String? source})
   onApplyBatchChanges;
 
-  const ActionSidebarV2({
+  const ActionSidebar({
     super.key,
     required this.onRenameAll,
     required this.onExport,
@@ -49,20 +49,20 @@ class ActionSidebarV2 extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                V2GradientButton(
+                GradientButton(
                   label: 'Rename All',
                   icon: FluentIcons.auto_enhance_on,
                   onPressed: onRenameAll,
                 ),
                 const SizedBox(height: 12),
-                V2SecondaryButton(
+                SecondaryButton(
                   label: 'Export to Excel',
                   icon: FluentIcons.document,
                   textColor: TagDocColors.primary,
                   onPressed: onExport,
                 ),
                 const SizedBox(height: 12),
-                V2SecondaryButton(
+                SecondaryButton(
                   label: 'Add Movies',
                   icon: FluentIcons.add_to_shopping_list,
                   textColor: TagDocColors.onSurfaceVariant,
@@ -177,7 +177,7 @@ class _BatchEditPanelState extends State<BatchEditPanel> {
             ],
           ),
           const SizedBox(height: 24),
-          V2Dropdown(
+          RenamerDropdown(
             label: 'Resolution',
             value: _resolution,
             items: [noChange, ...SettingsManager.resolutions],
@@ -188,7 +188,7 @@ class _BatchEditPanelState extends State<BatchEditPanel> {
             },
           ),
           const SizedBox(height: 12),
-          V2Dropdown(
+          RenamerDropdown(
             label: 'Quality',
             value: _quality,
             items: [
@@ -202,7 +202,7 @@ class _BatchEditPanelState extends State<BatchEditPanel> {
             },
           ),
           const SizedBox(height: 12),
-          V2Dropdown(
+          RenamerDropdown(
             label: 'Source',
             value: _source,
             items: [
@@ -216,7 +216,7 @@ class _BatchEditPanelState extends State<BatchEditPanel> {
             },
           ),
           const SizedBox(height: 24),
-          V2GradientButton(
+          GradientButton(
             label: 'Apply Changes',
             icon: FluentIcons.accept,
             onPressed: () {

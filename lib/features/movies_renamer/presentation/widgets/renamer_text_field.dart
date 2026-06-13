@@ -1,12 +1,12 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 
-class V2TextField extends StatelessWidget {
+class RenamerTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final ValueChanged<String>? onSubmitted;
 
-  const V2TextField({
+  const RenamerTextField({
     super.key,
     required this.label,
     required this.controller,

@@ -1,12 +1,12 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 
-class V2GradientButton extends StatelessWidget {
+class GradientButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
 
-  const V2GradientButton({
+  const GradientButton({
     super.key,
     required this.label,
     required this.icon,
@@ -44,13 +44,13 @@ class V2GradientButton extends StatelessWidget {
   }
 }
 
-class V2SecondaryButton extends StatelessWidget {
+class SecondaryButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color textColor;
   final VoidCallback onPressed;
 
-  const V2SecondaryButton({
+  const SecondaryButton({
     super.key,
     required this.label,
     required this.icon,

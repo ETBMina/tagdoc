@@ -7,16 +7,16 @@ import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/core/presentation/dialog_utils.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
-import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_dropdown.dart';
-import 'package:tagdoc/features/movies_renamer/presentation/widgets/v2/v2_text_field.dart';
+import 'package:tagdoc/features/movies_renamer/presentation/widgets/renamer_dropdown.dart';
+import 'package:tagdoc/features/movies_renamer/presentation/widgets/renamer_text_field.dart';
 
-class MovieCardV2 extends StatefulWidget {
+class MovieCard extends StatefulWidget {
   final Movie movie;
   final Function(Movie updatedMovie) onUpdateMovie;
   final VoidCallback onRemoveMovie;
   final Function(bool isSelected) onToggleMovieSelection;
 
-  const MovieCardV2({
+  const MovieCard({
     super.key,
     required this.movie,
     required this.onUpdateMovie,
@@ -25,10 +25,10 @@ class MovieCardV2 extends StatefulWidget {
   });
 
   @override
-  State<MovieCardV2> createState() => _MovieCardV2State();
+  State<MovieCard> createState() => _MovieCardState();
 }
 
-class _MovieCardV2State extends State<MovieCardV2> {
+class _MovieCardState extends State<MovieCard> {
   late TextEditingController _titleController;
   late TextEditingController _yearController;
   Uint8List? _posterBytes;
@@ -64,7 +64,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
   }
 
   @override
-  void didUpdateWidget(MovieCardV2 oldWidget) {
+  void didUpdateWidget(MovieCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.movie != widget.movie) {
       if (oldWidget.movie.poster != widget.movie.poster) {
@@ -301,7 +301,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
                               const SizedBox(height: 12),
                               LayoutBuilder(
                                 builder: (context, constraints) {
-                                  final yearField = V2TextField(
+                                  final yearField = RenamerTextField(
                                     label: 'Release',
                                     controller: _yearController,
                                     onSubmitted: (v) {
@@ -317,7 +317,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                     },
                                   );
 
-                                  final resDropdown = V2Dropdown(
+                                  final resDropdown = RenamerDropdown(
                                     label: 'Resolution',
                                     value: widget.movie.getResolutionString(),
                                     items: SettingsManager.resolutions,
@@ -334,7 +334,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                     },
                                   );
 
-                                  final qualityDropdown = V2Dropdown(
+                                  final qualityDropdown = RenamerDropdown(
                                     label: 'Quality',
                                     value: widget.movie.quality,
                                     items: List<String>.from(
@@ -351,7 +351,7 @@ class _MovieCardV2State extends State<MovieCardV2> {
                                     },
                                   );
 
-                                  final sourceDropdown = V2Dropdown(
+                                  final sourceDropdown = RenamerDropdown(
                                     label: 'Source',
                                     value: widget.movie.source ?? 'None',
                                     items: List<String>.from(

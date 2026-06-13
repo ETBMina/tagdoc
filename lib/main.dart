@@ -2,7 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'package:tagdoc/features/movies_renamer/presentation/pages/movies_renamer_page_v2.dart';
+import 'package:tagdoc/features/movies_renamer/presentation/pages/movies_renamer_page.dart';
 import 'package:tagdoc/init_dependencies.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
           PaneItem(
             icon: const Icon(FluentIcons.home),
             title: const Text('Renamer'),
-            body: MoviesRenamerPageV2(),
+            body: MoviesRenamerPage(),
           ),
           PaneItem(
             icon: const Icon(FluentIcons.settings),
