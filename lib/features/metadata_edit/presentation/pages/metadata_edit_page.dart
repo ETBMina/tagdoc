@@ -5,9 +5,9 @@ import 'package:tagdoc/core/presentation/widgets/app_page_scaffold.dart';
 /// A page that allows editing metadata of movies.
 ///
 /// It uses the common [AppPageScaffold] to ensure consistent typography and padding.
-class EditMetadataPage extends StatelessWidget {
-  /// Creates an [EditMetadataPage].
-  const EditMetadataPage({super.key});
+class MetadataEditPage extends StatelessWidget {
+  /// Creates an [MetadataEditPage].
+  const MetadataEditPage({super.key});
 
   @override
   Widget build(BuildContext context) {

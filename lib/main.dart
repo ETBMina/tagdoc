@@ -1,5 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:tagdoc/core/constants/app_constants.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
+import 'package:tagdoc/features/metadata_edit/presentation/pages/metadata_edit_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'package:tagdoc/features/movies_renamer/presentation/pages/movies_renamer_page.dart';
@@ -123,12 +125,19 @@ class _MyHomePageState extends State<MyHomePage> {
             items: [
               PaneItem(
                 icon: const Icon(FluentIcons.home),
-                title: const Text('Renamer'),
+                title: const Text(AppConstants.renamerPageTitle),
                 body: MoviesRenamerPage(),
               ),
               PaneItem(
+                icon: const Icon(FluentIcons.edit),
+                title: const Text(AppConstants.metadataPageTitle),
+                body: MetadataEditPage(),
+              ),
+            ],
+            footerItems: [
+              PaneItem(
                 icon: const Icon(FluentIcons.settings),
-                title: const Text('Settings'),
+                title: const Text(AppConstants.settingsPageTitle),
                 body: const Center(child: Text('Settings Page')),
               ),
             ],
