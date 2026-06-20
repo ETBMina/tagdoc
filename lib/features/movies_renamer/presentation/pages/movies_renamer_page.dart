@@ -1,8 +1,10 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tagdoc/core/constants/app_constants.dart';
 import 'package:tagdoc/core/presentation/dialog_utils.dart';
 import 'package:tagdoc/core/presentation/overlay_utils.dart';
+import 'package:tagdoc/core/presentation/widgets/app_page_scaffold.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/bloc/movies_renamer_bloc.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/action_sidebar.dart';
@@ -26,151 +28,124 @@ class _MoviesRenamerPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<MoviesRenamerBloc>();
-    return ScaffoldPage(
-      padding: EdgeInsets.zero,
-      content: BlocListener<MoviesRenamerBloc, MoviesRenamerState>(
-        listener: (context, state) {
-          if (state is MoviesRenamerSuccess) {
-            OverlayUtils.showSuccess(context, state.message);
-          } else if (state is MoviesRenamerError) {
-            OverlayUtils.showError(context, state.message);
-          }
-        },
-        child: Container(
-          color: TagDocColors.surface,
-          child: Row(
-            children: [
-              // Main Content Canvas
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(40.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header
-                      const Text(
-                        'Renamer',
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 36,
-                          fontWeight: FontWeight.w800,
-                          color: TagDocColors.onSurface,
-                          letterSpacing: -0.5,
-                        ),
+    return BlocListener<MoviesRenamerBloc, MoviesRenamerState>(
+      listener: (context, state) {
+        if (state is MoviesRenamerSuccess) {
+          OverlayUtils.showSuccess(context, state.message);
+        } else if (state is MoviesRenamerError) {
+          OverlayUtils.showError(context, state.message);
+        }
+      },
+      child: AppPageScaffold(
+        title: AppConstants.renamerPageTitle,
+        child: Row(
+          children: [
+            // Main Content Canvas
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
                       ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: TagDocColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child:
-                                    BlocBuilder<
-                                      MoviesRenamerBloc,
-                                      MoviesRenamerState
-                                    >(
-                                      buildWhen: (previous, current) {
-                                        return (current
-                                                    is MoviesSelectionChanged ||
-                                                current
-                                                    is MoviesRenamerLoaded) &&
-                                            previous
-                                                    .selectedMoviePaths
-                                                    .length !=
-                                                current
-                                                    .selectedMoviePaths
-                                                    .length;
-                                      },
-                                      builder: (context, state) {
-                                        return Text(
-                                          '${bloc.state.selectedMoviePaths.length} Items Selected',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: const TextStyle(
-                                            color: TagDocColors.primary,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                              ),
-                              const SizedBox(width: 8),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    bloc.add(const ClearSelectedMoviesEvent());
+                      decoration: BoxDecoration(
+                        color: TagDocColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child:
+                                BlocBuilder<
+                                  MoviesRenamerBloc,
+                                  MoviesRenamerState
+                                >(
+                                  buildWhen: (previous, current) {
+                                    return (current is MoviesSelectionChanged ||
+                                            current is MoviesRenamerLoaded) &&
+                                        previous.selectedMoviePaths.length !=
+                                            current.selectedMoviePaths.length;
                                   },
-                                  child: const Text(
-                                    'Clear',
-                                    style: TextStyle(
-                                      color: TagDocColors.onSurfaceVariant,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
+                                  builder: (context, state) {
+                                    return Text(
+                                      '${bloc.state.selectedMoviePaths.length} Items Selected',
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      style: const TextStyle(
+                                        color: TagDocColors.primary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  },
+                                ),
+                          ),
+                          const SizedBox(width: 8),
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () {
+                                bloc.add(const ClearSelectedMoviesEvent());
+                              },
+                              child: const Text(
+                                'Clear',
+                                style: TextStyle(
+                                  color: TagDocColors.onSurfaceVariant,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.underline,
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      // Movie Card List
-                      Expanded(child: MoviesCardsListviewWdgt(bloc: bloc)),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Action Sidebar (Right Panel)
-              Padding(
-                padding: const EdgeInsets.only(top: 40, bottom: 40, right: 40),
-                child: SingleChildScrollView(
-                  child: ActionSidebar(
-                    onRenameAll: () {
-                      bloc.add(const RenameAllMoviesEvent());
-                    },
-                    onExport: () {
-                      bloc.add(const ExportMoviesEvent());
-                    },
-                    onAddMovies: () {
-                      bloc.add(const SelectMoviesEvent());
-                    },
-                    onClearAll: () => DialogUtils.showConfirmation(
-                      context: context,
-                      title: 'Clear All Movies',
-                      content:
-                          'Are you sure you want to clear all movies? This action cannot be undone.',
-                      confirmText: 'Clear All',
-                      onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
                     ),
-                    onApplyBatchChanges: ({resolution, quality, source}) {
-                      bloc.add(
-                        ApplyBatchEditEvent(
-                          resolution: resolution,
-                          quality: quality,
-                          source: source,
-                        ),
-                      );
-                    },
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  // Movie Card List
+                  Expanded(child: MoviesCardsListviewWdgt(bloc: bloc)),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 40),
+            // Action Sidebar (Right Panel)
+            SingleChildScrollView(
+              child: ActionSidebar(
+                onRenameAll: () {
+                  bloc.add(const RenameAllMoviesEvent());
+                },
+                onExport: () {
+                  bloc.add(const ExportMoviesEvent());
+                },
+                onAddMovies: () {
+                  bloc.add(const SelectMoviesEvent());
+                },
+                onClearAll: () => DialogUtils.showConfirmation(
+                  context: context,
+                  title: 'Clear All Movies',
+                  content:
+                      'Are you sure you want to clear all movies? This action cannot be undone.',
+                  confirmText: 'Clear All',
+                  onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
+                ),
+                onApplyBatchChanges: ({resolution, quality, source}) {
+                  bloc.add(
+                    ApplyBatchEditEvent(
+                      resolution: resolution,
+                      quality: quality,
+                      source: source,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
