@@ -116,6 +116,7 @@ class MovieRepositoryImpl implements BaseMovieRepository {
       final File file = File(filePath);
 
       final sink = file.openWrite();
+      sink.write('\uFEFF');
       sink.write(csvData);
       await sink.close();
 
