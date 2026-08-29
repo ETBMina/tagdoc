@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
+import 'package:tagdoc/core/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/clear_all_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/export_movies_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/get_initial_movies_usecase.dart';

@@ -1,4 +1,4 @@
-import 'package:tagdoc/features/movies_renamer/domain/entities/movie_metadata.dart';
+import 'package:tagdoc/core/domain/entities/movie_metadata.dart';
 
 class MovieMetadataModel extends MovieMetadata {
   const MovieMetadataModel({

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:tagdoc/features/movies_renamer/domain/entities/movie_metadata.dart';
+import 'package:tagdoc/core/domain/entities/movie_metadata.dart';
 import 'package:path/path.dart' as p;
 
 class Movie extends Equatable {

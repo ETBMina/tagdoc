@@ -6,7 +6,7 @@ import 'package:tagdoc/features/movies_renamer/presentation/bloc/movies_renamer_
 import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/core/presentation/dialog_utils.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
-import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
+import 'package:tagdoc/core/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/renamer_dropdown.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/renamer_text_field.dart';
 

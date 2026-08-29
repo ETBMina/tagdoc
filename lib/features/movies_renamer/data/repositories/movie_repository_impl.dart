@@ -7,7 +7,7 @@ import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:tagdoc/core/error/error_messages.dart';
 import 'package:tagdoc/core/error/failure.dart';
 import 'package:tagdoc/features/movies_renamer/data/models/movie_model.dart';
-import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
+import 'package:tagdoc/core/domain/entities/movie.dart';
 import 'package:tagdoc/features/movies_renamer/domain/repositories/base_movie_repository.dart';
 import 'package:tagdoc/features/movies_renamer/domain/usecases/rename_movie_usecase.dart';
 import 'package:tagdoc/features/movies_renamer/data/datasources/local_file_data_source.dart';

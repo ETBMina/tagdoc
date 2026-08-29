@@ -1,5 +1,5 @@
 import 'package:tagdoc/features/movies_renamer/data/models/movie_metadata_model.dart';
-import 'package:tagdoc/features/movies_renamer/domain/entities/movie.dart';
+import 'package:tagdoc/core/domain/entities/movie.dart';
 import 'package:tagdoc/core/config/settings_manager.dart';
 import 'package:path/path.dart' as p;
 
