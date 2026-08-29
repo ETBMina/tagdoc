@@ -15,13 +15,17 @@ class GetMoviesFromDirectoriesUsecase
   Future<Either<Failure, List<Movie>>> call(
     MoviesFromDirectoriesParams params,
   ) async {
-    return await repository.getMoviesFromDirectory();
+    return await repository.getMoviesFromDirectory(
+      onProgress: params.onProgress,
+    );
   }
 }
 
 class MoviesFromDirectoriesParams extends Equatable {
-  const MoviesFromDirectoriesParams();
+  final void Function(int current, int total)? onProgress;
+
+  const MoviesFromDirectoriesParams({this.onProgress});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [onProgress];
 }

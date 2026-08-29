@@ -5,6 +5,7 @@ import 'package:tagdoc/core/constants/app_constants.dart';
 import 'package:tagdoc/core/presentation/dialog_utils.dart';
 import 'package:tagdoc/core/presentation/overlay_utils.dart';
 import 'package:tagdoc/core/presentation/widgets/app_page_scaffold.dart';
+import 'package:tagdoc/core/presentation/widgets/app_progress_bar.dart';
 import 'package:tagdoc/core/theme/tagdoc_theme.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/bloc/movies_renamer_bloc.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/widgets/action_sidebar.dart';
@@ -116,31 +117,41 @@ class _MoviesRenamerPageContent extends StatelessWidget {
             const SizedBox(width: 40),
             // Action Sidebar (Right Panel)
             SingleChildScrollView(
-              child: ActionSidebar(
-                onRenameAll: () {
-                  bloc.add(const RenameAllMoviesEvent());
+              child: BlocBuilder<MoviesRenamerBloc, MoviesRenamerState>(
+                buildWhen: (previous, current) {
+                  return (previous is MoviesRenamerLoading) !=
+                      (current is MoviesRenamerLoading);
                 },
-                onExport: () {
-                  bloc.add(const ExportMoviesEvent());
-                },
-                onAddMovies: () {
-                  bloc.add(const SelectMoviesEvent());
-                },
-                onClearAll: () => DialogUtils.showConfirmation(
-                  context: context,
-                  title: 'Clear All Movies',
-                  content:
-                      'Are you sure you want to clear all movies? This action cannot be undone.',
-                  confirmText: 'Clear All',
-                  onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
-                ),
-                onApplyBatchChanges: ({resolution, quality, source}) {
-                  bloc.add(
-                    ApplyBatchEditEvent(
-                      resolution: resolution,
-                      quality: quality,
-                      source: source,
+                builder: (context, state) {
+                  final isLoading = state is MoviesRenamerLoading;
+                  return ActionSidebar(
+                    isLoading: isLoading,
+                    onRenameAll: () {
+                      bloc.add(const RenameAllMoviesEvent());
+                    },
+                    onExport: () {
+                      bloc.add(const ExportMoviesEvent());
+                    },
+                    onAddMovies: () {
+                      bloc.add(const SelectMoviesEvent());
+                    },
+                    onClearAll: () => DialogUtils.showConfirmation(
+                      context: context,
+                      title: 'Clear All Movies',
+                      content:
+                          'Are you sure you want to clear all movies? This action cannot be undone.',
+                      confirmText: 'Clear All',
+                      onConfirm: () => bloc.add(const ClearAllMoviesEvent()),
                     ),
+                    onApplyBatchChanges: ({resolution, quality, source}) {
+                      bloc.add(
+                        ApplyBatchEditEvent(
+                          resolution: resolution,
+                          quality: quality,
+                          source: source,
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -180,11 +191,76 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
             : Colors.transparent,
         child: BlocBuilder<MoviesRenamerBloc, MoviesRenamerState>(
           buildWhen: (previous, current) {
-            return current is MoviesRenamerLoaded &&
+            return current is MoviesRenamerLoaded ||
+                current is MoviesRenamerLoading ||
+                (previous is MoviesRenamerLoading &&
+                    current is! MoviesRenamerLoading) ||
                 previous.movies != current.movies;
           },
           builder: (context, state) {
-            debugPrint('Listview rebuild');
+            debugPrint('Listview rebuild, state: ${state.runtimeType}');
+
+            // 1. Loading State
+            if (state is MoviesRenamerLoading) {
+              if (state.movies.isEmpty) {
+                // Centered loading bar when no movies have been loaded yet
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: AppProgressBar(
+                      current: state.current,
+                      total: state.total,
+                      title: 'Opening Files...',
+                      statusMessage: state.statusMessage,
+                    ),
+                  ),
+                );
+              }
+
+              // Loading additional movies with existing list displayed
+              return Column(
+                children: [
+                  AppProgressBar(
+                    current: state.current,
+                    total: state.total,
+                    title: 'Opening Files...',
+                    statusMessage: state.statusMessage,
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: state.movies.length,
+                      itemBuilder: (context, index) {
+                        return MovieCard(
+                          key: ValueKey(state.movies[index].filePath),
+                          movie: state.movies[index],
+                          onUpdateMovie: (updatedMovie) {
+                            widget.bloc.add(
+                              UpdateMovieDataEvent(updatedMovie: updatedMovie),
+                            );
+                          },
+                          onRemoveMovie: () {
+                            widget.bloc.add(
+                              RemoveMovieEvent(movie: state.movies[index]),
+                            );
+                          },
+                          onToggleMovieSelection: (isSelected) {
+                            widget.bloc.add(
+                              ToggleMovieSelectionEvent(
+                                moviePath: state.movies[index].filePath,
+                                isSelected: isSelected,
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            // 2. Loaded State
             if (state is MoviesRenamerLoaded) {
               if (state.movies.isEmpty) {
                 return const Center(
@@ -194,7 +270,6 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
                   ),
                 );
               }
-              debugPrint('Listview rebuild2');
               return ListView.builder(
                 itemCount: state.movies.length,
                 itemBuilder: (context, index) {
@@ -224,8 +299,7 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
               );
             }
 
-            // Initial state or other states
-            debugPrint('Initial State');
+            // 3. Initial or fallback state
             return const Center(
               child: Text(
                 'Select some movies to begin renaming',

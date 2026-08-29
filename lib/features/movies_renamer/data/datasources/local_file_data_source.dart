@@ -3,11 +3,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 
 class LocalFileDataSource {
-  Future<List<String>> _pickFiles() async {
+  Future<List<String>> _pickFiles({bool allowMultiple = true}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['mp4'],
-      allowMultiple: true,
+      allowMultiple: allowMultiple,
     );
 
     if (result != null) {

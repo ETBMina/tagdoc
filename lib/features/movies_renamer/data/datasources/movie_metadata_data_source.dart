@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:ffi/ffi.dart';
 import 'package:tagdoc/core/constants/app_constants.dart';
 
@@ -21,15 +22,22 @@ typedef GetMP4MetadataAsJsonC =
 typedef GetMP4MetadataAsJsonDart =
     Pointer<Utf8> Function(Pointer<Utf8> inputFilePath);
 
+/// Contract for acquiring movie metadata from local video files.
 abstract class BaseMovieMetadataDataSource {
-  String? getMovieMetadataFromFile(String filePath);
+  /// Reads metadata from the given [filePath] asynchronously.
+  Future<String?> getMovieMetadataFromFile(String filePath);
 }
 
+/// Data source implementation that extracts MP4 metadata via C++ FFI.
 class MovieMetadataDataSource extends BaseMovieMetadataDataSource {
-  late final GetMP4MetadataAsJsonDart _getMP4MetadataAsJson;
+  final String _dllPath;
 
-  MovieMetadataDataSource({String? customDllPath}) {
-    // 3. Load the DLL.
+  /// Initializes the data source with an optional [customDllPath].
+  MovieMetadataDataSource({String? customDllPath})
+    : _dllPath = _resolveDllPath(customDllPath);
+
+  /// Resolves the absolute path to the native DLL.
+  static String _resolveDllPath(String? customDllPath) {
     String dllPath = customDllPath ?? AppConstants.movieDllName;
 
     // Fallback for test environments where the DLL is not in the execution root
@@ -40,39 +48,47 @@ class MovieMetadataDataSource extends BaseMovieMetadataDataSource {
       // Normalize slashes for Windows just in case
       dllPath = dllPath.replaceAll('/', '\\');
     }
-
-    final dylib = DynamicLibrary.open(dllPath);
-
-    // 4. Look up the C function and cast it to the Dart signature.
-    _getMP4MetadataAsJson = dylib
-        .lookup<NativeFunction<GetMP4MetadataAsJsonC>>(
-          AppConstants.getMetadataFunctionName,
-        )
-        .asFunction<GetMP4MetadataAsJsonDart>();
+    return dllPath;
   }
 
   /// Reads all metadata from the specified MP4 file and returns it as a JSON string.
   ///
-  /// Returns the JSON string on success, or null on failure.
+  /// Offloads the FFI DLL invocation to a background worker isolate via [Isolate.run]
+  /// to ensure the Flutter UI thread remains responsive (60+ FPS) when processing
+  /// multiple large files.
   ///
-  /// Returns the JSON string on success, or null on failure.
+  /// Returns the JSON string on success, or `null` on failure.
   @override
-  String? getMovieMetadataFromFile(String filePath) {
-    final inputPathC = filePath.toNativeUtf8();
-    try {
-      final resultPtr = _getMP4MetadataAsJson(inputPathC);
+  Future<String?> getMovieMetadataFromFile(String filePath) async {
+    final dllPath = _dllPath;
 
-      if (resultPtr.address == 0) {
-        return null; // The C function returned a NULL pointer.
+    // Execute in a background isolate so the main thread's event loop continues
+    // pumping UI frames and progress bar animations.
+    return await Isolate.run(() {
+      final dylib = DynamicLibrary.open(dllPath);
+
+      final getMP4MetadataAsJson = dylib
+          .lookup<NativeFunction<GetMP4MetadataAsJsonC>>(
+            AppConstants.getMetadataFunctionName,
+          )
+          .asFunction<GetMP4MetadataAsJsonDart>();
+
+      final inputPathC = filePath.toNativeUtf8();
+      try {
+        final resultPtr = getMP4MetadataAsJson(inputPathC);
+
+        if (resultPtr.address == 0) {
+          return null; // The C function returned a NULL pointer.
+        }
+
+        final jsonString = resultPtr.toDartString();
+        // NOTE: We do NOT free resultPtr here because it points to C++ thread_local static memory.
+        return jsonString;
+      } finally {
+        malloc.free(
+          inputPathC,
+        ); // Always free the input string memory allocated by Dart.
       }
-
-      final jsonString = resultPtr.toDartString();
-      // NOTE: We do NOT free resultPtr here because it points to C++ thread_local static memory.
-      return jsonString;
-    } finally {
-      malloc.free(
-        inputPathC,
-      ); // Always free the input string memory allocated by Dart.
-    }
+    });
   }
 }

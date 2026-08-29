@@ -56,29 +56,86 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     add(const GetInitialMoviesEvent());
 
     on<SelectMoviesEvent>((event, emit) async {
-      emit(MoviesRenamerLoading(movies: state.movies));
-      final result = await _getMovies(const MoviesFromDirectoriesParams());
+      emit(
+        MoviesRenamerLoading(
+          movies: state.movies,
+          selectedMoviePaths: state.selectedMoviePaths,
+          current: 0,
+          total: 0,
+          statusMessage: 'Selecting files...',
+        ),
+      );
+      final result = await _getMovies(
+        MoviesFromDirectoriesParams(
+          onProgress: (current, total) {
+            emit(
+              MoviesRenamerLoading(
+                movies: state.movies,
+                selectedMoviePaths: state.selectedMoviePaths,
+                current: current,
+                total: total,
+                statusMessage: 'Reading metadata ($current of $total)...',
+              ),
+            );
+          },
+        ),
+      );
       result.match(
         (failure) => emit(
-          MoviesRenamerError(message: failure.message, movies: state.movies),
+          MoviesRenamerError(
+            message: failure.message,
+            movies: state.movies,
+            selectedMoviePaths: state.selectedMoviePaths,
+          ),
         ),
         (newSelectedMovies) => emit(
-          MoviesRenamerLoaded(movies: [...state.movies, ...newSelectedMovies]),
+          MoviesRenamerLoaded(
+            movies: [...state.movies, ...newSelectedMovies],
+            selectedMoviePaths: state.selectedMoviePaths,
+          ),
         ),
       );
     });
 
     on<DragAndDropMoviesEvent>((event, emit) async {
-      emit(MoviesRenamerLoading(movies: state.movies));
+      emit(
+        MoviesRenamerLoading(
+          movies: state.movies,
+          selectedMoviePaths: state.selectedMoviePaths,
+          current: 0,
+          total: event.filePaths.length,
+          statusMessage: 'Opening dropped files...',
+        ),
+      );
       final result = await _loadMoviesFromPaths(
-        LoadMoviesFromPathsParams(paths: event.filePaths),
+        LoadMoviesFromPathsParams(
+          paths: event.filePaths,
+          onProgress: (current, total) {
+            emit(
+              MoviesRenamerLoading(
+                movies: state.movies,
+                selectedMoviePaths: state.selectedMoviePaths,
+                current: current,
+                total: total,
+                statusMessage: 'Reading metadata ($current of $total)...',
+              ),
+            );
+          },
+        ),
       );
       result.match(
         (failure) => emit(
-          MoviesRenamerError(message: failure.message, movies: state.movies),
+          MoviesRenamerError(
+            message: failure.message,
+            movies: state.movies,
+            selectedMoviePaths: state.selectedMoviePaths,
+          ),
         ),
         (newSelectedMovies) => emit(
-          MoviesRenamerLoaded(movies: [...state.movies, ...newSelectedMovies]),
+          MoviesRenamerLoaded(
+            movies: [...state.movies, ...newSelectedMovies],
+            selectedMoviePaths: state.selectedMoviePaths,
+          ),
         ),
       );
     });
@@ -172,8 +229,9 @@ class MoviesRenamerBloc extends Bloc<MoviesRenamerEvent, MoviesRenamerState> {
     });
 
     on<ApplyBatchEditEvent>((event, emit) async {
-      if (state.selectedMoviePaths.isEmpty)
+      if (state.selectedMoviePaths.isEmpty) {
         return; // Only apply if movies are selected
+      }
 
       final updatedMovies = state.movies.map((movie) {
         if (state.selectedMoviePaths.contains(movie.filePath)) {

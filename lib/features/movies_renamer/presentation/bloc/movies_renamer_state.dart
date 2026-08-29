@@ -18,7 +18,43 @@ class MoviesRenamerInitial extends MoviesRenamerState {
 }
 
 class MoviesRenamerLoading extends MoviesRenamerState {
-  const MoviesRenamerLoading({required super.movies, super.selectedMoviePaths});
+  /// The count of files processed so far.
+  final int current;
+
+  /// The total count of files to process.
+  final int total;
+
+  /// An optional status message describing the active task.
+  final String? statusMessage;
+
+  const MoviesRenamerLoading({
+    required super.movies,
+    super.selectedMoviePaths,
+    this.current = 0,
+    this.total = 0,
+    this.statusMessage,
+  });
+
+  /// Computes progress ratio between 0.0 and 1.0.
+  /// Returns `null` when [total] <= 0 for automatic indeterminate loading.
+  double? get progress =>
+      (total > 0 && current >= 0) ? (current / total).clamp(0.0, 1.0) : null;
+
+  /// Computes percentage value between 0.0 and 100.0.
+  double? get percentage => progress != null ? progress! * 100.0 : null;
+
+  /// Formatted percentage string (e.g., "45%").
+  String? get percentageString =>
+      percentage != null ? '${percentage!.toInt()}%' : null;
+
+  @override
+  List<Object?> get props => [
+    movies,
+    selectedMoviePaths,
+    current,
+    total,
+    statusMessage,
+  ];
 }
 
 class MoviesRenamerLoaded extends MoviesRenamerState {

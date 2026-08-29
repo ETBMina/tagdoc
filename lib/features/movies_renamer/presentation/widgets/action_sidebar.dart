@@ -11,6 +11,7 @@ class ActionSidebar extends StatelessWidget {
   final VoidCallback onClearAll;
   final void Function({String? resolution, String? quality, String? source})
   onApplyBatchChanges;
+  final bool isLoading;
 
   const ActionSidebar({
     super.key,
@@ -19,6 +20,7 @@ class ActionSidebar extends StatelessWidget {
     required this.onAddMovies,
     required this.onClearAll,
     required this.onApplyBatchChanges,
+    this.isLoading = false,
   });
 
   @override
@@ -66,6 +68,7 @@ class ActionSidebar extends StatelessWidget {
                   label: 'Add Movies',
                   icon: FluentIcons.add_to_shopping_list,
                   textColor: TagDocColors.onSurfaceVariant,
+                  isLoading: isLoading,
                   onPressed: onAddMovies,
                 ),
                 const SizedBox(height: 16),

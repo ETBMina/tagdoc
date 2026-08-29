@@ -22,13 +22,15 @@ Future<void> initDependencies() async {
 void _initMoviesRenamer() {
   // 1. Data Sources
   serviceLocator.registerLazySingleton(() => LocalFileDataSource());
-  serviceLocator.registerLazySingleton(() => MovieMetadataDataSource());
+  serviceLocator.registerLazySingleton<BaseMovieMetadataDataSource>(
+    () => MovieMetadataDataSource(),
+  );
 
   // 2. Repositories
   serviceLocator.registerLazySingleton<BaseMovieRepository>(
     () => MovieRepositoryImpl(
       localFileDataSource: serviceLocator(),
-      movieMetadataDataSource: serviceLocator(),
+      movieMetadataDataSource: serviceLocator<BaseMovieMetadataDataSource>(),
     ),
   );
 

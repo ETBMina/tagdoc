@@ -16,7 +16,7 @@ import 'dart:io';
 
 class MovieRepositoryImpl implements BaseMovieRepository {
   final LocalFileDataSource localFileDataSource;
-  final MovieMetadataDataSource movieMetadataDataSource;
+  final BaseMovieMetadataDataSource movieMetadataDataSource;
   List<Movie> _currentMovies = [];
 
   MovieRepositoryImpl({
@@ -25,29 +25,47 @@ class MovieRepositoryImpl implements BaseMovieRepository {
   });
 
   @override
-  Future<Either<Failure, List<Movie>>> getMoviesFromDirectory() async {
+  Future<Either<Failure, List<Movie>>> getMoviesFromDirectory({
+    void Function(int current, int total)? onProgress,
+  }) async {
     List<String> paths = await localFileDataSource.selectFiles();
 
-    return loadMoviesFromPaths(paths);
+    return loadMoviesFromPaths(paths, onProgress: onProgress);
   }
 
   @override
   Future<Either<Failure, List<Movie>>> loadMoviesFromPaths(
-    List<String> paths,
-  ) async {
+    List<String> paths, {
+    void Function(int current, int total)? onProgress,
+  }) async {
     if (paths.isEmpty) {
       return Left(Failure(message: ErrorMessages.noFilesSelected));
     }
 
+    final total = paths.length;
+    onProgress?.call(0, total);
+
     List<MovieModel> movies = [];
-    for (var path in paths) {
-      final rawJson = movieMetadataDataSource.getMovieMetadataFromFile(path);
-      if (rawJson == null) {
-        return Left(Failure(message: ErrorMessages.movieMetadataNotFound));
+    for (int i = 0; i < paths.length; i++) {
+      final path = paths[i];
+      final rawJson = await movieMetadataDataSource.getMovieMetadataFromFile(
+        path,
+      );
+      if (rawJson != null) {
+        try {
+          final movieModel = MovieModel.fromJson(jsonDecode(rawJson), path);
+          movies.add(movieModel);
+        } catch (_) {
+          // If metadata JSON fails to parse, skip this file without breaking the entire batch
+        }
       }
-      MovieModel movieModel = MovieModel.fromJson(jsonDecode(rawJson), path);
-      movies.add(movieModel);
+      onProgress?.call(i + 1, total);
     }
+
+    if (movies.isEmpty) {
+      return Left(Failure(message: ErrorMessages.movieMetadataNotFound));
+    }
+
     _currentMovies = [..._currentMovies, ...movies];
     return Right(movies);
   }

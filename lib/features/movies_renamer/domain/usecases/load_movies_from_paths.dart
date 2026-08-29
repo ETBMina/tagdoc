@@ -12,14 +12,19 @@ class LoadMoviesFromPathsUsecase
 
   @override
   Future<Either<Failure, List<Movie>>> call(LoadMoviesFromPathsParams params) {
-    return repository.loadMoviesFromPaths(params.paths);
+    return repository.loadMoviesFromPaths(
+      params.paths,
+      onProgress: params.onProgress,
+    );
   }
 }
 
 class LoadMoviesFromPathsParams extends Equatable {
   final List<String> paths;
-  const LoadMoviesFromPathsParams({required this.paths});
+  final void Function(int current, int total)? onProgress;
+
+  const LoadMoviesFromPathsParams({required this.paths, this.onProgress});
 
   @override
-  List<Object?> get props => [paths];
+  List<Object?> get props => [paths, onProgress];
 }
