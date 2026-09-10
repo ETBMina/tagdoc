@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tagdoc/features/movies_renamer/presentation/bloc/movies_renamer_bloc.dart';
@@ -29,9 +27,53 @@ class MovieCard extends StatefulWidget {
 }
 
 class _MovieCardState extends State<MovieCard> {
+  static final WidgetStateProperty<BoxDecoration> _titleBoxDecoration =
+      WidgetStateProperty.all(
+        const BoxDecoration(border: Border(), color: Colors.transparent),
+      );
+
+  static final List<String> _cachedQualities = List<String>.unmodifiable(
+    SettingsManager.qualities.map((q) => q.displayName),
+  );
+
+  static final List<String> _cachedSources = List<String>.unmodifiable(
+    SettingsManager.sources.map((s) => s.displayName),
+  );
+
+  /// Pre-cached card container decorations to avoid per-build allocations.
+  static final BoxDecoration _selectedCardDecoration = BoxDecoration(
+    color: TagDocColors.surfaceContainer,
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: TagDocColors.primary.withValues(alpha: 0.3)),
+  );
+
+  static final BoxDecoration _unselectedCardDecoration = BoxDecoration(
+    color: TagDocColors.surfaceContainerLow,
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(
+      color: TagDocColors.outlineVariant.withValues(alpha: 0.1),
+    ),
+  );
+
+  static final BoxDecoration _posterDecoration = BoxDecoration(
+    color: TagDocColors.surfaceContainerHighest,
+    borderRadius: BorderRadius.circular(6),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.2),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  );
+
+  static final BoxDecoration _filenamePillDecoration = BoxDecoration(
+    color: TagDocColors.primary.withValues(alpha: 0.1),
+    borderRadius: BorderRadius.circular(4),
+  );
+
   late TextEditingController _titleController;
   late TextEditingController _yearController;
-  Uint8List? _posterBytes;
 
   @override
   void initState() {
@@ -46,31 +88,12 @@ class _MovieCardState extends State<MovieCard> {
       year = metadata.releaseDate.split('-').first;
     }
     _yearController = TextEditingController(text: year);
-
-    _decodePoster();
-  }
-
-  void _decodePoster() {
-    if (widget.movie.poster != null) {
-      try {
-        _posterBytes = base64Decode(widget.movie.poster!);
-      } catch (e) {
-        debugPrint('Error decoding poster: $e');
-        _posterBytes = null;
-      }
-    } else {
-      _posterBytes = null;
-    }
   }
 
   @override
   void didUpdateWidget(MovieCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.movie != widget.movie) {
-      if (oldWidget.movie.poster != widget.movie.poster) {
-        _decodePoster();
-      }
-
       final metadata = widget.movie.metadata;
       final newTitle = metadata?.title ?? widget.movie.fileName;
       if (_titleController.text != newTitle) {
@@ -100,149 +123,144 @@ class _MovieCardState extends State<MovieCard> {
       selector: (state) =>
           state.selectedMoviePaths.contains(widget.movie.filePath),
       builder: (context, isSelected) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8.0),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? TagDocColors.surfaceContainer
-                : TagDocColors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isSelected
-                  ? TagDocColors.primary.withValues(alpha: 0.3)
-                  : TagDocColors.outlineVariant.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Stack(
-            children: [
-              if (isSelected)
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: Center(
-                    child: Container(
-                      width: 2,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: TagDocColors.primary,
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(4),
-                          bottomRight: Radius.circular(4),
+        return RepaintBoundary(
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8.0),
+            decoration: isSelected
+                ? _selectedCardDecoration
+                : _unselectedCardDecoration,
+            child: Stack(
+              children: [
+                if (isSelected)
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: Container(
+                        width: 2,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          color: TagDocColors.primary,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(4),
+                            bottomRight: Radius.circular(4),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    Checkbox(
-                      checked: isSelected,
-                      onChanged: (val) {
-                        widget.onToggleMovieSelection(val ?? false);
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    Container(
-                      width: 64,
-                      height: 96,
-                      decoration: BoxDecoration(
-                        color: TagDocColors.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(6),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 8),
+                      Checkbox(
+                        checked: isSelected,
+                        onChanged: (val) {
+                          widget.onToggleMovieSelection(val ?? false);
+                        },
                       ),
-                      clipBehavior: Clip.antiAlias,
-                      child: _posterBytes != null
-                          ? Image.memory(
-                              _posterBytes!,
-                              fit: BoxFit.cover,
-                              width: 64,
-                              height: 96,
-                              gaplessPlayback: true,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Center(
-                                    child: Icon(
-                                      FluentIcons.my_movies_t_v,
-                                      size: 24,
-                                      color: TagDocColors.onSurfaceVariant,
+                      const SizedBox(width: 16),
+                      Container(
+                        width: 64,
+                        height: 96,
+                        decoration: _posterDecoration,
+                        clipBehavior: Clip.antiAlias,
+                        child: widget.movie.posterBytes != null
+                            ? Image.memory(
+                                widget.movie.posterBytes!,
+                                fit: BoxFit.cover,
+                                width: 64,
+                                height: 96,
+                                cacheWidth: 128,
+                                cacheHeight: 192,
+                                gaplessPlayback: true,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Center(
+                                      child: Icon(
+                                        FluentIcons.my_movies_t_v,
+                                        size: 24,
+                                        color: TagDocColors.onSurfaceVariant,
+                                      ),
                                     ),
-                                  ),
-                            )
-                          : const Center(
-                              child: Icon(
-                                FluentIcons.my_movies_t_v,
-                                size: 24,
-                                color: TagDocColors.onSurfaceVariant,
+                              )
+                            : const Center(
+                                child: Icon(
+                                  FluentIcons.my_movies_t_v,
+                                  size: 24,
+                                  color: TagDocColors.onSurfaceVariant,
+                                ),
                               ),
-                            ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Meta fields
-                    Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          if (constraints.maxWidth < 120) {
-                            return const SizedBox.shrink();
-                          }
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 6,
-                                                    vertical: 2,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: TagDocColors.primary
-                                                    .withValues(alpha: 0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: const Text(
-                                                'FILENAME',
-                                                style:
-                                                    TagDocTextStyles.pillLabel,
-                                              ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Meta fields
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
                                             ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: Text(
-                                                widget.movie.fileName,
-                                                style: TagDocTextStyles
-                                                    .codeFilename,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                              ),
+                                            decoration: _filenamePillDecoration,
+                                            child: const Text(
+                                              'FILENAME',
+                                              style: TagDocTextStyles.pillLabel,
                                             ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Focus(
-                                          onFocusChange: (hasFocus) {
-                                            if (!hasFocus) {
-                                              final v = _titleController.text;
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              widget.movie.fileName,
+                                              style:
+                                                  TagDocTextStyles.codeFilename,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Focus(
+                                        onFocusChange: (hasFocus) {
+                                          if (!hasFocus) {
+                                            final v = _titleController.text;
+                                            final currentTitle =
+                                                widget.movie.metadata?.title ??
+                                                widget.movie.fileName;
+                                            if (v != currentTitle) {
+                                              final updatedMetadata = widget
+                                                  .movie
+                                                  .metadata
+                                                  ?.copyWith(title: v);
+                                              widget.onUpdateMovie(
+                                                widget.movie.copyWith(
+                                                  metadata: updatedMetadata,
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        },
+                                        child: TextBox(
+                                          controller: _titleController,
+                                          onSubmitted: (v) {
+                                            final currentTitle =
+                                                widget.movie.metadata?.title ??
+                                                widget.movie.fileName;
+                                            if (v != currentTitle) {
                                               final updatedMetadata = widget
                                                   .movie
                                                   .metadata
@@ -254,70 +272,64 @@ class _MovieCardState extends State<MovieCard> {
                                               );
                                             }
                                           },
-                                          child: TextBox(
-                                            controller: _titleController,
-                                            onSubmitted: (v) {
-                                              final updatedMetadata = widget
-                                                  .movie
-                                                  .metadata
-                                                  ?.copyWith(title: v);
-                                              widget.onUpdateMovie(
-                                                widget.movie.copyWith(
-                                                  metadata: updatedMetadata,
-                                                ),
-                                              );
-                                            },
-                                            style: TagDocTextStyles.cardTitle,
-                                            decoration: WidgetStateProperty.all(
-                                              const BoxDecoration(
-                                                border: Border(), // No border
-                                                color: Colors.transparent,
-                                              ),
-                                            ),
-                                            padding: const EdgeInsets.all(0),
-                                            highlightColor: TagDocColors
-                                                .surfaceContainerHigh,
-                                          ),
+                                          style: TagDocTextStyles.cardTitle,
+                                          decoration: _titleBoxDecoration,
+                                          padding: const EdgeInsets.all(0),
+                                          highlightColor:
+                                              TagDocColors.surfaceContainerHigh,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      FluentIcons.delete,
-                                      color: TagDocColors.onSurfaceVariant,
-                                    ),
-                                    onPressed: () => DialogUtils.showConfirmation(
-                                      context: context,
-                                      title: 'Remove Movie',
-                                      content:
-                                          'Are you sure you want to remove "${widget.movie.fileName}"?',
-                                      confirmText: 'Remove',
-                                      onConfirm: widget.onRemoveMovie,
-                                    ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    FluentIcons.delete,
+                                    color: TagDocColors.onSurfaceVariant,
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final yearField = RenamerTextField(
+                                  onPressed: () => DialogUtils.showConfirmation(
+                                    context: context,
+                                    title: 'Remove Movie',
+                                    content:
+                                        'Are you sure you want to remove "${widget.movie.fileName}"?',
+                                    confirmText: 'Remove',
+                                    onConfirm: widget.onRemoveMovie,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: RenamerTextField(
                                     label: 'Release',
                                     controller: _yearController,
                                     onSubmitted: (v) {
-                                      final updatedMetadata = widget
-                                          .movie
-                                          .metadata
-                                          ?.copyWith(releaseDate: v);
-                                      widget.onUpdateMovie(
-                                        widget.movie.copyWith(
-                                          metadata: updatedMetadata,
-                                        ),
-                                      );
+                                      final currentYear =
+                                          widget.movie.metadata?.releaseDate
+                                              .split('-')
+                                              .first ??
+                                          '';
+                                      if (v != currentYear) {
+                                        final updatedMetadata = widget
+                                            .movie
+                                            .metadata
+                                            ?.copyWith(releaseDate: v);
+                                        widget.onUpdateMovie(
+                                          widget.movie.copyWith(
+                                            metadata: updatedMetadata,
+                                          ),
+                                        );
+                                      }
                                     },
-                                  );
-
-                                  final resDropdown = RenamerDropdown(
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  flex: 2,
+                                  child: RenamerDropdown(
                                     label: 'Resolution',
                                     value: widget.movie.getResolutionString(),
                                     items: SettingsManager.resolutions,
@@ -332,16 +344,15 @@ class _MovieCardState extends State<MovieCard> {
                                         );
                                       }
                                     },
-                                  );
-
-                                  final qualityDropdown = RenamerDropdown(
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  flex: 2,
+                                  child: RenamerDropdown(
                                     label: 'Quality',
                                     value: widget.movie.quality,
-                                    items: List<String>.from(
-                                      SettingsManager.qualities.map(
-                                        (q) => q.displayName,
-                                      ),
-                                    ),
+                                    items: _cachedQualities,
                                     onChanged: (v) {
                                       if (v != null) {
                                         widget.onUpdateMovie(
@@ -349,16 +360,15 @@ class _MovieCardState extends State<MovieCard> {
                                         );
                                       }
                                     },
-                                  );
-
-                                  final sourceDropdown = RenamerDropdown(
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  flex: 2,
+                                  child: RenamerDropdown(
                                     label: 'Source',
                                     value: widget.movie.source ?? 'None',
-                                    items: List<String>.from(
-                                      SettingsManager.sources.map(
-                                        (s) => s.displayName,
-                                      ),
-                                    ),
+                                    items: _cachedSources,
                                     onChanged: (v) {
                                       if (v != null) {
                                         widget.onUpdateMovie(
@@ -366,58 +376,18 @@ class _MovieCardState extends State<MovieCard> {
                                         );
                                       }
                                     },
-                                  );
-
-                                  if (constraints.maxWidth > 500) {
-                                    return Row(
-                                      children: [
-                                        Expanded(flex: 1, child: yearField),
-                                        const SizedBox(width: 8),
-                                        Expanded(flex: 2, child: resDropdown),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          flex: 2,
-                                          child: qualityDropdown,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          flex: 2,
-                                          child: sourceDropdown,
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: [
-                                        SizedBox(width: 80, child: yearField),
-                                        SizedBox(
-                                          width: 110,
-                                          child: resDropdown,
-                                        ),
-                                        SizedBox(
-                                          width: 110,
-                                          child: qualityDropdown,
-                                        ),
-                                        SizedBox(
-                                          width: 110,
-                                          child: sourceDropdown,
-                                        ),
-                                      ],
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
-                          );
-                        },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

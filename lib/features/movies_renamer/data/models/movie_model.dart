@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:tagdoc/features/movies_renamer/data/models/movie_metadata_model.dart';
 import 'package:tagdoc/core/domain/entities/movie.dart';
 import 'package:tagdoc/core/config/settings_manager.dart';
@@ -14,15 +16,23 @@ class MovieModel extends Movie {
     super.source,
     super.duration,
     super.metadata,
-    super.poster,
+    super.posterBytes,
   });
 
   factory MovieModel.fromJson(Map<String, dynamic> json, String filePath) {
     try {
       final fileName = p.basename(filePath);
-      // Extract poster base64 data from the poster object if present
+      // Extract poster base64 data and decode to Uint8List once during ingestion
       final posterObj = json['poster'] as Map<String, dynamic>?;
       final posterData = posterObj?['data'] as String?;
+      Uint8List? posterBytes;
+      if (posterData != null && posterData.isNotEmpty) {
+        try {
+          posterBytes = base64Decode(posterData);
+        } catch (_) {
+          posterBytes = null;
+        }
+      }
 
       return MovieModel(
         filePath: filePath,
@@ -34,7 +44,7 @@ class MovieModel extends Movie {
         source: SettingsManager.predictSource(fileName),
         duration: json['duration'] as String?,
         metadata: MovieMetadataModel.fromJson(json),
-        poster: posterData,
+        posterBytes: posterBytes,
       );
     } catch (e) {
       throw FormatException('Error parsing MovieModel from JSON: $e');

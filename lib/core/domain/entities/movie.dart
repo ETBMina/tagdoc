@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:tagdoc/core/domain/entities/movie_metadata.dart';
 import 'package:path/path.dart' as p;
@@ -12,7 +13,7 @@ class Movie extends Equatable {
   final String? source;
   final String? duration;
   final MovieMetadata? metadata;
-  final String? poster;
+  final Uint8List? posterBytes;
 
   const Movie({
     required this.filePath,
@@ -24,7 +25,7 @@ class Movie extends Equatable {
     this.source,
     this.duration,
     this.metadata,
-    this.poster,
+    this.posterBytes,
   });
 
   List<dynamic> toCsvRow() {
@@ -83,6 +84,9 @@ class Movie extends Equatable {
     return '${height}p';
   }
 
+  /// Poster bytes are excluded from equality — they are decode-once immutable
+  /// data keyed by [filePath] and should not trigger expensive binary
+  /// comparison across the entire movie list on every BLoC state emission.
   @override
   List<Object?> get props => [
     filePath,
@@ -94,7 +98,6 @@ class Movie extends Equatable {
     source,
     duration,
     metadata,
-    poster,
   ];
 
   Movie copyWith({
@@ -107,7 +110,7 @@ class Movie extends Equatable {
     String? source,
     String? duration,
     MovieMetadata? metadata,
-    String? posterBase64,
+    Uint8List? posterBytes,
   }) {
     return Movie(
       filePath: filePath ?? this.filePath,
@@ -119,7 +122,7 @@ class Movie extends Equatable {
       source: source ?? this.source,
       duration: duration ?? this.duration,
       metadata: metadata ?? this.metadata,
-      poster: posterBase64 ?? this.poster,
+      posterBytes: posterBytes ?? this.posterBytes,
     );
   }
 }

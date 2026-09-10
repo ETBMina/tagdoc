@@ -13,6 +13,13 @@ class RenamerTextField extends StatelessWidget {
     this.onSubmitted,
   });
 
+  static final WidgetStateProperty<BoxDecoration> _fieldDecoration =
+      WidgetStateProperty.all(
+        TagDocDecorations.fieldDecoration.copyWith(
+          border: Border.all(color: Colors.transparent),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -32,11 +39,7 @@ class RenamerTextField extends StatelessWidget {
               controller: controller,
               onSubmitted: onSubmitted,
               style: TagDocTextStyles.fieldValue,
-              decoration: WidgetStateProperty.all(
-                TagDocDecorations.fieldDecoration.copyWith(
-                  border: Border.all(color: Colors.transparent),
-                ),
-              ),
+              decoration: _fieldDecoration,
               highlightColor: TagDocColors.primary.withValues(alpha: 0.4),
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             ),

@@ -230,6 +230,8 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
                   Expanded(
                     child: ListView.builder(
                       itemCount: state.movies.length,
+                      itemExtent: 136.0,
+                      addAutomaticKeepAlives: false,
                       itemBuilder: (context, index) {
                         return MovieCard(
                           key: ValueKey(state.movies[index].filePath),
@@ -272,6 +274,8 @@ class _MoviesCardsListviewWdgtState extends State<MoviesCardsListviewWdgt> {
               }
               return ListView.builder(
                 itemCount: state.movies.length,
+                itemExtent: 136.0,
+                addAutomaticKeepAlives: false,
                 itemBuilder: (context, index) {
                   return MovieCard(
                     key: ValueKey(state.movies[index].filePath),
