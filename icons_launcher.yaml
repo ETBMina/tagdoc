@@ -1,0 +1,16 @@
+# One source image for the Flutter UI and all generated launcher icons.
+icons_launcher:
+  image_path: assets/branding/app-logo.png
+  platforms:
+    android:
+      enable: false
+    ios:
+      enable: false
+    macos:
+      enable: false
+    windows:
+      enable: true
+    web:
+      enable: false
+    linux:
+      enable: false
